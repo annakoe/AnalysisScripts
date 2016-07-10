@@ -1,0 +1,112 @@
+\begin{footnotesize}
+
+\section{Design of the EMT5000  library}
+\label{Bioinf_methods: EMT5000 library}
+
+A list of genes known to be involved in EMT was taken from DeCraene et al. \cite{DeCraene:2013kb}. Regions of interest within the promoter of these genes were identified manually by inspection of chromatin marks in the UCSC genome browser. The following genomic regions where chosen as target sites for the design of guide RNAs  and saved in the file "EMT-genepromoter-comprehensive.gff":
+
+\begin{tabular}[H]{llll}
+chr1 &	170626538 &	170637878 &	PRRX1 \\
+chr2	& 145272896 & 145282545 & ZEB2 \\
+chr2 &	145310788 & 145311630 & ZEB2 \\
+chr6 &	166578775 & 166584033 & Brachyury (T gene) \\
+chr6	& 166586466 & 166588249 & Brachyury (T gene) \\
+chr7	& 19155427	 & 19162115 & TWIST1 \\
+chr8	& 49831094	 & 49838789 & SLUG \\
+chr10 & 31549929 & 31552360 & ZEB1 \\
+chr10 & 31603262 & 31611019 & ZEB1 \\
+chr14 & 61113258 & 61126351 & SIX1 \\
+chr14 & 95235188 & 95236645 & GSC (Goosecoid) \\
+chr16 & 68765472 & 68768900 & Cdh1 \\
+chr16 & 68770501 & 68779468 & Cdh1 \\
+chr16 & 86596822 & 86601033 & FOXC2 \\
+chr18 & 25616470 & 25616815 & Cdh2 \\
+chr18 & 25753143 & 25759002 & Cdh2 \\
+chr18 & 25763319 & 25764152 & Cdh2 \\
+chr18 & 25783828 & 25784775 & Cdh2 \\
+chr18 & 52966479 & 52970132 & TCF4 \\
+chr18 & 52983584 & 52991765 & TCF4 \\
+chr18 & 52994740 & 52997201	& TCF4 \\
+chr18 & 53067559 & 53071402	& TCF4 \\
+chr18 & 53072594 & 53073776	& TCF4 \\
+chr18 & 53087724 & 53090359	& TCF4 \\
+chr18 & 53176467 & 53178784	& TCF4 \\
+chr18 & 53252816 & 53257791	& TCF4 \\
+chr18 & 53259747 & 53260381	& TCF4 \\
+chr18 & 53301547 & 53303603	& TCF4 \\
+chr19 & 1631468	 & 1633670	& E47/TCF3 \\
+chr19 & 1646514	 & 1653855	& E47/TCF3 \\
+chr19 & 1655335	 & 1656204	& E47/TCF3 \\
+chr19 & 1660918	 & 1661677	& E47/TCF3  \\
+chr20 & 48592707 & 48600991 & SNAIL1  \\
+chrX & 56258091 & 56260688 &KLF8 \\
+
+\end{tabular}
+
+All gRNAs falling into these regions were then found using:
+
+\begin{lstlisting}
+intersectBed -a GN20GG_masked_autoXY.gff -b EMT_genepromoter_comprehensive.gff
+-f 1 -wa -wb > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.gff
+\end{lstlisting}
+
+Guide RNAs that did not align uniquely to the genome where then removed
+
+\begin{lstlisting}
+##for alignment need to first convert gff file into fasta format
+##separate + and - strand
+cut -f 1,2,3,4 GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.gff | grep '+' | awk '{print "chr" $1 ":" ($2-1) "-" $3}' > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_PLUS.2bit;
+
+cut -f 1,2,3,4 GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.gff | grep -v '+' | awk '{print "chr" $1 ":" $2 "-" $3}' > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_MINUS.2bit;
+
+##convert to FASTA
+twoBitToFa ~/human/GRCh37/hg19.2bit GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_PLUS.fa seqList=GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_PLUS.2bit;
+
+twoBitToFa  ~/human/GRCh37/hg19.2bit GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_MINUS.fa seqList=GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_MINUS.2bit;
+
+##create reverse complement of guide RNAs on the minus strand
+
+python ~/anna_data/gRNA_library_design/ReverseComplementFasta.py GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_MINUS.fa > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_MINUS_RC.fa;
+
+##combine
+cat GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_PLUS.fa GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_MINUS_RC.fa > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.fa;
+
+\end{lstlisting}
+
+The PAM sequence was removed using trimming.py and alignment to the genome without the PAM (as GN19).
+
+\begin{lstlisting}
+
+bwa aln -n 0 -o 0 -l 10 -N -I ~/path_to/GRCh37/human_GRCh37.tmp
+GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.fa >
+GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.sai;
+
+bwa samse -n 10000 ~/path_to/GRCh37/human_GRCh37.tmp   
+GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.sai 
+GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.fa > 
+GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.sam;
+
+samtools view -S -q1 
+GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM.sam | cut -f  1 | sort | uniq | wc -l
+
+GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique_strand.bed
+
+
+\end{lstlisting}
+
+This file contains 5086 sequences, i.e. 5086 gRNA sequences of the form GN19 that align uniquely to the genome and are followed by an NGG PAM were found in the regions of interest.
+
+For cloning into the gRNA vector pgRNA-pLKO.1 (see Methods) by Gibson cloning, vector-derived sequences were attached to either end of the gRNA sequence. To this end the FASTA files for the final set of 5086 unique gRNAs were retrieved and sequences appended as follow:
+
+\begin{lstlisting}
+
+sed 'n; s/$/GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCT/' GN20GG_masked_autoXY_EMT_genepromoter_ comprehensive_complete_noPAM_unique_strand_PAMremoved.fa | sed 'n; s/^/TCTTGTGGAAAGGACGAAACACC/g' | paste - - | awk '{print $2 "\t" $1}' > EMT_guides_Custom_Array.txt
+
+\end{lstlisting}
+
+
+A pool of sequences of the form 5'-TCTTGTGGAAAGGACGAAACACC-GN19-GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCT-3', where GN19 donates the 5086 different guide sequences was then obtained from Custom Array Inc. 
+
+
+
+\end{footnotesize}

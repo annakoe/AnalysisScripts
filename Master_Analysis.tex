@@ -1,0 +1,166 @@
+\documentclass[12pt]{report}
+\usepackage[utf8x]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{geometry}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{ccaption}
+\usepackage{fancyvrb}
+\usepackage{pdflscape}
+\usepackage{setspace}
+\usepackage{spverbatim}
+\usepackage{listings}
+\lstset{
+   breaklines=true,
+   basicstyle=\ttfamily}
+   
+\usepackage{natbib}
+
+\newcommand{\veca}{\boldsymbol{\mathbf{a}}}
+\newcommand{\vecb}{\boldsymbol{\mathbf{b}}}
+\newcommand{\vecc}{\boldsymbol{\mathbf{c}}}
+\newcommand{\vecd}{\boldsymbol{\mathbf{d}}}
+\newcommand{\vece}{\boldsymbol{\mathbf{e}}}
+\newcommand{\vecf}{\boldsymbol{\mathbf{f}}}
+\newcommand{\vecg}{\boldsymbol{\mathbf{g}}}
+\newcommand{\vech}{\boldsymbol{\mathbf{h}}}
+\newcommand{\veci}{\boldsymbol{\mathbf{i}}}
+\newcommand{\vecj}{\boldsymbol{\mathbf{j}}}
+\newcommand{\veck}{\boldsymbol{\mathbf{k}}}
+\newcommand{\vecl}{\boldsymbol{\mathbf{l}}}
+\newcommand{\vecm}{\boldsymbol{\mathbf{m}}}
+\newcommand{\vecn}{\boldsymbol{\mathbf{n}}}
+\newcommand{\veco}{\boldsymbol{\mathbf{o}}}
+\newcommand{\vecp}{\boldsymbol{\mathbf{p}}}
+\newcommand{\vecq}{\boldsymbol{\mathbf{q}}}
+\newcommand{\vecr}{\boldsymbol{\mathbf{r}}}
+\newcommand{\vecs}{\boldsymbol{\mathbf{s}}}
+\newcommand{\vect}{\boldsymbol{\mathbf{t}}}
+\newcommand{\vecu}{\boldsymbol{\mathbf{u}}}
+\newcommand{\vecv}{\boldsymbol{\mathbf{v}}}
+\newcommand{\vecw}{\boldsymbol{\mathbf{w}}}
+\newcommand{\vecx}{\boldsymbol{\mathbf{x}}}
+\newcommand{\vecy}{\boldsymbol{\mathbf{y}}}
+\newcommand{\vecz}{\boldsymbol{\mathbf{z}}}
+\newcommand{\matA}{\boldsymbol{\mathbf{A}}}
+\newcommand{\matB}{\boldsymbol{\mathbf{B}}}
+\newcommand{\matC}{\boldsymbol{\mathbf{C}}}
+\newcommand{\matD}{\boldsymbol{\mathbf{D}}}
+\newcommand{\matE}{\boldsymbol{\mathbf{E}}}
+\newcommand{\matF}{\boldsymbol{\mathbf{F}}}
+\newcommand{\matG}{\boldsymbol{\mathbf{G}}}
+\newcommand{\matH}{\boldsymbol{\mathbf{H}}}
+\newcommand{\matI}{\boldsymbol{\mathbf{I}}}
+\newcommand{\matJ}{\boldsymbol{\mathbf{J}}}
+\newcommand{\matK}{\boldsymbol{\mathbf{K}}}
+\newcommand{\matL}{\boldsymbol{\mathbf{L}}}
+\newcommand{\matM}{\boldsymbol{\mathbf{M}}}
+\newcommand{\matN}{\boldsymbol{\mathbf{N}}}
+\newcommand{\matO}{\boldsymbol{\mathbf{O}}}
+\newcommand{\matP}{\boldsymbol{\mathbf{P}}}
+\newcommand{\matQ}{\boldsymbol{\mathbf{Q}}}
+\newcommand{\matR}{\boldsymbol{\mathbf{R}}}
+\newcommand{\matS}{\boldsymbol{\mathbf{S}}}
+\newcommand{\matT}{\boldsymbol{\mathbf{T}}}
+\newcommand{\matU}{\boldsymbol{\mathbf{U}}}
+\newcommand{\matV}{\boldsymbol{\mathbf{V}}}
+\newcommand{\matW}{\boldsymbol{\mathbf{W}}}
+\newcommand{\matX}{\boldsymbol{\mathbf{X}}}
+\newcommand{\matY}{\boldsymbol{\mathbf{Y}}}
+\newcommand{\matZ}{\boldsymbol{\mathbf{Z}}}
+\newcommand{\matzero}{\boldsymbol{\mathbf{0}}}
+\newcommand{\ev}{\boldsymbol{\eta}}
+\newcommand{\varpv}{\boldsymbol{\varphi}}
+\newcommand{\tv}{\boldsymbol{\theta}}
+\newcommand{\mv}{\boldsymbol{\mu}}
+\newcommand{\cv}{\boldsymbol{\chi}}
+\newcommand{\sv}{\boldsymbol{\sigma}}
+\newcommand{\Sv}{\boldsymbol{\Sigma}}
+\newcommand{\Dv}{\boldsymbol{\Delta}}
+\newcommand{\pv}{\boldsymbol{\phi}}
+\newcommand{\xv}{\boldsymbol{\xi}}
+\newcommand{\Pv}{\boldsymbol{\Phi}}
+\newcommand{\Psv}{\boldsymbol{\Psi}}
+\newcommand{\bv}{\boldsymbol{\beta}}
+\newcommand{\av}{\boldsymbol{\alpha}}
+\newcommand{\ov}{\boldsymbol{\omega}}
+\newcommand{\rv}{\boldsymbol{\rho}}
+\newcommand{\tauv}{\boldsymbol{\tau}}
+\newcommand{\nuv}{\boldsymbol{\nu}}
+\newcommand{\vecxs}{\vecx^{\star}}
+\newcommand{\vecys}{\vecy^{\star}}
+\newcommand{\vecks}{\veck^{\star}}
+\newcommand{\fs}{f^{\star}}
+\newcommand{\ts}{t^{\star}}
+
+\makeglossary
+
+\begin{document}
+
+\title{PhD thesis - Appendix}
+\author{Anna Köferle}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{3cm}
+        
+		\begin{Huge}
+		\textbf{Bioinformatics Methods}
+		\end{Huge}   
+		 \vspace{3cm}      
+		 
+		 
+		\begin{Huge}
+		\textbf{Forward Epigenetics using a CRISPR-based Screening Method}
+		\end{Huge}        
+		
+        \vspace{3.cm}      
+        
+        {\Large \textbf{Anna Köferle}}
+        
+        \vfill
+        
+        A thesis presented for the degree of\\
+        Doctor of Philosophy
+        
+        \vspace{1.5cm}
+        
+        
+        University College London\\
+        London\\
+        September 2016\\
+        
+        
+    \end{center}
+\end{titlepage}
+
+\pagenumbering{arabic}
+\onehalfspacing
+
+\tableofcontents
+
+
+\chapter{Degenerate gRNA libraries}
+\label{ch:degenerate-libraries}
+\include{chapters/degenerate_libraries}
+
+\chapter{Design of theEMT5000 library}
+\label{ch:EMT5000_library}
+\include{chapters/EMT5000_library}
+
+\chapter{Analysis of screen with the EMT5000 library and stable cell lines}
+\label{ch:EMT5000-screen}
+\include{chapters/EMT5000_screen}
+
+
+\bibliographystyle{plain}
+\bibliography{References}
+
+\end{document}
