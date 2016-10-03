@@ -1,13 +1,30 @@
 #!/usr/bin/env Rscript
 
+#Using Bioconductor 3.2 (BiocInstaller 1.20.3), R 3.2.2
+#loads BSgenome and human genome
 library(BSgenome)
 library(BSgenome.Hsapiens.UCSC.hg19) 
-#loads BSgenome and human genome
+library(optparse)
+
+
+## Set user options (defaults to finding GN19-NGG)
+option_list = list(
+  make_option(c("-p", "--pattern"), type="character", default="GNNNNNNNNNNNNNNNNNNNNGG", 
+              help="supply pattern to search for in genome (degenerate bases are allowed)", metavar="character"),
+  make_option(c("-n", "--pattern.name"), type="character", default=NULL, 
+              help="supply a column identifier describing the pattern", metavar="GN20GG"),
+  make_option(c("-o", "--outputfile"), type="character", default="GN20GG_masked_allregions.txt", 
+              help="supply an outputfilename", metavar="character")
+)
+
+opt_parser = OptionParser(option_list=option_list)
+### catch user input
+opt = parse_args(opt_parser)
 
 #define a dictionnary for which sequences to run in a DNASTringSet object,
 #useful if wanting to find more than one sequence, see later sections
-dict0 <- DNAStringSet(c("GNNNNNNNNNNNNNNNNNNNNGG"))
-names(dict0)<-c("GN20GG")
+dict0 <- DNAStringSet(c(opt$pattern))
+names(dict0)<-c(opt$pattern.name)
 
 #define the function 'writeHits' that writes output
 writeHits <- function(seqname, matches, strand, file="", append=FALSE) {
@@ -35,6 +52,7 @@ GenomeSearch_masked <- function(dict0, outfile=""){
 #loop through chromosomes
 for (seqname in seqnames) 
 {
+  #load a chromosome into memory
   subject <- Hsapiens[[seqname]]
   
   #repeat-mask the chromosome
@@ -64,5 +82,5 @@ for (seqname in seqnames)
 }
 }
 
-GenomeSearch_masked(dict0, outfile="GN20GG_masked_Hsapiens_hg19.txt")
-
+#call the Genome search function
+GenomeSearch_masked(dict0, outfile=opt$outputfile)

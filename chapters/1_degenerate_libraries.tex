@@ -1,16 +1,17 @@
-\begin{footnotesize}
-
-\section{Bioinformatics: Degenerate gRNA libraries}
-
-\subsection{Finding all occurrences of GN20GG in the repeat-masked human genome}
+\section{Finding all gRNA targets in the repeat-masked human genome}
 \label{sec:GN20GG in genome}
 
-A random library has a complexity of $4^{20}$, which corresponds to $10^{12}$ different sequences. We wished to reduce this complexity and maximise binding to the genome. To this end, we first identified the number of occurences of the sequences GN20GG in the human genome. The Bioconductor (Bioconductor version 2.14) package BSgenome \citep{BSgenome} was used to identify all sequences matching this pattern in the repeat-masked human genome in R (version 3.1.1). An R script named \begin{lstlisting}find_all_gRNAs.R
-\end{lstlisting} 
-contains the code and outputs a file containing chromosome coordinates and strand information for all hits, with the last column containing the pattern identifier. The regions mapping to chromosomes 1-22 and the sex chromosomes were extracted as follows:
+The genomic target sites of gRNAs designed for use with the \textit{S.pyogenes} CRISPR/Cas system are of the general form GN$_{20}$GG. The presence of the G at the start of the motif is required for initiation of transcription from the U6 promoter, present on many gRNA expression vectors. This is followed by 19 random bases (N) that determine the gRNA target site - these bases comprise the gRNA protospacer. The protospacer sequence is followed by the protospacer-adjacent motif (PAM), which is not part of the gRNA sequence but is present in the genomic target sequence just 3' of the gRNA target site. For the \textit{S.pyogenes} CRISPR/Cas system, the PAM has to be comprised of the bases NGG. 
+
+A gRNA library is a pooled collection of gRNAs. A random library has a complexity of $4^{19}$, which corresponds to $10^{12}$ different sequences. The aim here is to reduce this complexity and maximise binding to the genome. To this end, I first identified the number of occurences of the sequences GN20GG in the human genome. The Bioconductor (Bioconductor version 2.14) package BSgenome \citep{BSgenome} was used to identify all sequences matching this pattern in the repeat-masked human genome in R (version 3.1.1). An R script named \verb|find_all_gRNAs.R| contains the code and outputs a file containing chromosome coordinates and strand information for all hits, with the last column containing the pattern identifier. The script looks for the GN$_{20}$GG by default (and outputs a file named \verb|GN20GG_masked_allregions.txt|), unless another pattern is supplied by the user as follows:
 
 \begin{lstlisting}
-#extract Chr1-22,X and Y from files:
+./find_all_gRNAs.R -p [pattern, e.g. "GTACN"], -n [pattern-name, e.g. "my-pattern"], -o [outputfilename, e.g. "All_GTACN_hg19_RM.txt"]
+\end{lstlisting}
+
+The regions mapping to chromosomes 1-22 and the sex chromosomes were extracted from the outputfile \verb|GN20GG_masked_allregions.txt| as follows:
+
+\begin{lstlisting}
 grep -v 'random' GN20GG_masked_allregions.txt | grep -v 'hap' | grep -v 
 'chrUn' | grep -v chrM > GN20GG_masked_autoXY.txt;
 
@@ -19,9 +20,9 @@ awk '{print $1 "\t" $2 "\t" $3 "\t" $4}' GN20GG_masked_autoXY.txt >
 GN20GG_masked_autoXY.bed;
 \end{lstlisting}
 
-\subsection{Identifying gRNAs that overlap with known promoters}
+\section{Identifying gRNAs that overlap with known promoters}
 
-In order to generate an annotation file containing promoter regions,  the annotation file for known transcripts (human GRCh37-70) was downloaded from Ensembl (version70) and parsed through a script (to be found here: \url{https://github.com/regmgw1/regmgw1_scripts/blob/master/ensembl_scripts/transcript2promoter.pl}) which extracts coordinates -1000 and +500 bp from the start of the transcript. From this file non-overlapping promoter sequences were derived by strand-specific merging using the Bedtools suite (v2.17.0).
+In order to generate an annotation file containing promoter regions,  the annotation file for known transcripts (human GRCh37-70) was downloaded from Ensembl (version70) and parsed through a script supplied by Gareth Wilson. This script can be found here: \url{https://github.com/regmgw1/regmgw1_scripts/blob/master/ensembl_scripts/transcript2promoter.pl}). This script extracts coordinates -1000 and +500 bp from the start of the transcript. From this file non-overlapping promoter sequences were derived by strand-specific merging using the Bedtools suite (v2.17.0).
 
 \begin{lstlisting}
 #strand-specific merging of promoter annotation file
@@ -55,19 +56,14 @@ GN20GG_masked_autoXY_promoters_merged_PLUS.fa
 #repeat for file containing hits on the minus strand
 \end{lstlisting}
 
-The Python script \begin{lstlisting}
-reverse_complement_fasta.py
-\end{lstlisting} 
-was used to reverse-complement the FASTA sequences on the minus strand \cite{Kao:Online}. The script was invoked as follows:
+The Python script \verb|reverse_complement_fasta.py| was used to reverse-complement the FASTA sequences on the minus strand \cite{Kao:Online}. The script was invoked as follows:
 
 \begin{lstlisting}
 python ReverseComplementFasta.py GN20GG_masked_autoXY_promoters_merged_MINUS.fa >
 GN20GG_masked_autoXY_promoters_merged_MINUS_REVERSE_Complement.fa
 \end{lstlisting}
 
-The fasta files on the plus and minus strand were combined using the cat command, lowercase letters converted to uppercase using seqret, and sequences collapsed into a unique set with \begin{lstlisting}
-fastx_collapser 
-\end{lstlisting}
+The fasta files on the plus and minus strand were combined using the cat command, lowercase letters converted to uppercase using seqret, and sequences collapsed into a unique set with \verb|fastx_collapser|. 
 
 \begin{lstlisting}
 #combine
@@ -87,9 +83,9 @@ GN20GG_masked_autoXY_promoters_merged_PlusMinus_UNIQUE.fa
 
 This yields a file containig 4,113,530 sequences.
 
-\subsection{Identifiying a consensus sequence for gRNAs that fall into promoters}
+\section{Identifiying a consensus sequence for gRNAs that fall into promoters}
 
-The Bioconductor package Biostrings\cite{Biostrings} was used to derive a consensus sequence from the list of FASTA sequences generated above as follows:
+The Bioconductor package Biostrings \cite{Biostrings} was used to derive a consensus sequence from the list of FASTA sequences generated above as follows:
 
 \begin{lstlisting}
 >library(Biostrings)
@@ -103,7 +99,7 @@ pwm_minus<-t(t(minus)/rowSums(t(minus)))
 
 \end{lstlisting}
 
-The following code  was used to generate the sequence logo plots \cite{Berry:2006hv} shown in Figure SXXXXXXXX
+The following code  was used to generate sequence logo plots \cite{Berry:2006hv}.
 
 \begin{lstlisting}
 >library(ggplot2) 
@@ -125,22 +121,21 @@ p<-ggplot2::ggplot(reshape2::melt(bval,varnames=c("nt","pos")),
   return(p)
 }
 
-#invoke the function with
-#berrylogo(pwm_minus, gc_content=0.5, zero=.0001)
+#invoke the function with:
+berrylogo(pwm_minus, gc_content=0.5, zero=.0001)
 \end{lstlisting}
 
 \subsection{Reducing complexity by identifying the most significant clusters}
 
-We reasoned that it might be possible to reduce complexity of the library by clustering. We defined our regions of interest as the 4,671,728 genomic hits of the form GN20GG that fall into or next to known promoter sequences in the human genome with a minimum of 1 bp overlap. We used LCS-HIT (Version 0.5.2)\cite{Namiki:2013bv} to cluster those regions of interest on the basis of sequence similarity. Clusters were ranked in descending order by the number of members and the top 15 clusters extracted.
+I reasoned that it might be possible to reduce the complexity of a random library by clustering. I defined regions of interest as the 4,671,728 genomic hits of the form GN20GG that fall into or next to known promoter sequences in the human genome with a minimum of 1 bp overlap. I used LCS-HIT (Version 0.5.2) \cite{Namiki:2013bv} to cluster those regions of interest on the basis of sequence similarity. Clusters were ranked in descending order by the number of members and the top 15 clusters extracted.
 
 \begin{lstlisting}
-#cluster sequences based on sequence similarity threshold 0.2 
-#and use the exact algorithm 
+#cluster sequences based on sequence similarity threshold 0.2 and use the "exact algorithm"
 lcs_hit-0.5.21/lcs_hit -i GN20GG_masked_autoXY_promoters
 _merged_PlusMinus_UNIQUE.fa -O LCSHIT_OUTPUT20G1 -c 0.2 -g 1 & 
 \end{lstlisting}
 
-LCS-HIT outputs the FASTA-identifiers only, therefore FASTA sequences were extracted using the script \textbf{"RetrieveFasta.pl"} \cite{Retrieve:Online}.
+LCS-HIT outputs the FASTA-identifiers only, therefore FASTA sequences were extracted using the script  \verb|RetrieveFasta.pl|, downloaded from reference \cite{Retrieve:Online}.
 
 \begin{lstlisting}
 #!/usr/bin/perl
@@ -203,9 +198,7 @@ consensusString(Clust190, ambiguityMap=IUPAC_CODE_MAP, threshold=0.19,
 shift=0L, width=NULL) 
 \end{lstlisting}
 
-The threshold option allows the user to define the percentage threshhold at which a given nucleotide will be incorporated into the consensus sequence at a given position. The threshold was varied between 0.14 and 0.25 so as to yield consensus sequences representing roughly $10^4$, $10^5$ and $10^6$ different sequences respectively (complexity).
-
-The complexity, or number of sequences represented by a cluster, was computed using the following C script\cite{Lindenbaum:Online}, "AllSequencesFromConsensus.c"
+The threshold option allows the user to define the percentage threshhold at which a given nucleotide will be incorporated into the consensus sequence at a given position. The threshold was varied between 0.14 and 0.25 so as to yield consensus sequences representing roughly $10^4$, $10^5$ and $10^6$ different sequences respectively. The complexity, or number of sequences represented by a cluster, was computed using the following C script from \cite{Lindenbaum:Online}, \verb|AllSequencesFromConsensus.c|.
 
 \begin{lstlisting}
 #include <stdio.h>
@@ -291,7 +284,7 @@ names(dict0)<-c("Cluster190_T20", "Cluster190_T19", "Cluster190_T18", "Cluster19
 GenomeSearch_masked(dict0, outfile="Top15Clusters_masked_allregions.txt")
 \end{lstlisting}
 
-Because CRISPRs guide RNAs are known to tolerate up to 3 mismatches in their target sites \cite{Mali:2013ft}, we reasoned that counting only exact matches probably underestimates the true number of target sites of any given sequence. Thus, the analysis was repeated allowing for up to 3 mismatches.
+Because CRISPRs guide RNAs are known to tolerate up to 3 mismatches in their target sites \cite{Mali:2013ft}, I reasoned that counting only exact matches probably underestimates the true number of target sites of any given sequence. Thus, the analysis was repeated allowing for an arbitrary number of up to 3 mismatches (gRNAs are known to tolerate more mismatches, especially towards the 5' end of the protospacer sequence. However, position of the mismatch in the gRNA was not taken into account here).
 
 \begin{lstlisting}
 # allowing for a maximum of three mismatches
@@ -303,7 +296,9 @@ plus_matches <- matchPattern(pattern, subject, max.mismatch=3, min.mismatch=0, f
 runAnalysis_masked_3mismatch(dict0, outfile="Top15Clusters_masked_allregions_3mismatch.txt")
 \end{lstlisting}
 
-Output files from both programmes were processed as follows and the results stored in Table\textbf{ SXXXXXXXXXXX.}
+UPDATE UPDATE UPDATE UPDATE
+
+Output files from both scripts were processed as follows and the results stored in Table 3.1 on p. 95 of the PhD Thesis.
 
 \begin{lstlisting}
 # retrieve hits for autosomes and sex chromosomes only
@@ -316,6 +311,4 @@ intersectBed -a Cluster190_T20_autoXY -b annotation_files/promoters_merged.bed -
 intersectBed -a  Cluster190_T20_autoXY -b  annotation_files/promoters_merged.bed -wb | cut -f 5-8 | sortBed | uniq | wc -l;
 \end{lstlisting}
 
-We defined the targeting efficiency for each of the possible consensus sequences of a given cluster by dividing the number of promoter hits by the total number of unique sequences (complexity) of the consensus. For each cluster the consensus sequences with the highest targeting sequence was chosen. The 15 top clusters were then ranked by targeting efficiency and the top 6 clusters chosen for library preparation.
-
-\end{footnotesize}
+I defined the targeting efficiency for each of the possible consensus sequences of a given cluster by dividing the number of promoter hits by the total number of unique sequences (complexity) of the consensus. For each cluster the consensus sequences with the highest targeting sequence was chosen. The 15 top clusters were then ranked by targeting efficiency and the top 6 clusters chosen for library preparation.

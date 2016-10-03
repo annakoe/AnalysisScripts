@@ -1,3 +1,49 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
+
+\bibitem{Retrieve:Online}
+{\url{http://www.biostars.org/p/1195/}}.
+
+\bibitem{Kao:Online}
+{\url{http://www.biostars.org/p/14614/}}.
+
+\bibitem{Lindenbaum:Online}
+{\url{http://www.biostars.org/p/6219/}}.
+
+\bibitem{Berry:2006hv}
+Charles Berry, Sridhar Hannenhalli, Jeremy Leipzig, and Frederic~D Bushman.
+\newblock {Selection of Target Sites for Mobile DNA Integration in the Human
+  Genome}.
+\newblock {\em PLoS Comput Biol}, 2(11):e157, 2006.
+
+\bibitem{DeCraene:2013kb}
+Bram De~Craene and Geert Berx.
+\newblock {Regulatory networks definingEMT during cancer initiation
+  andprogression}.
+\newblock {\em Nat Rev Cancer}, 13(2), 2013.
+
+\bibitem{Mali:2013ft}
+Prashant Mali, John Aach, P~Benjamin Stranges, Kevin~M Esvelt, Mark Moosburner,
+  Sriram Kosuri, Luhan Yang, and George~M Church.
+\newblock {CAS9 transcriptional activators for target specificity screening and
+  paired nickases for cooperative genome engineering}.
+\newblock {\em Nat Biotechnol}, 31(9):833--838, August 2013.
+
+\bibitem{Namiki:2013bv}
+Youhei Namiki, Takashi Ishida, and Yutaka Akiyama.
+\newblock {Acceleration of sequence clustering using longest common subsequence
+  filtering}.
+\newblock {\em BMC Bioinformatics}, 14(Suppl 8):S7, May 2013.
+
+\bibitem{Biostrings}
+H.~Pages, P.~Aboyoun, R.~Gentleman, and S.~DebRoy.
+\newblock {\em Biostrings: String objects representing biological sequences,
+  and matching algorithms}.
+\newblock R package version 2.30.0.
+
+\bibitem{BSgenome}
+Herve Pages.
+\newblock {\em BSgenome: Infrastructure for Biostrings-based genome data
+  packages}.
+\newblock R package version 1.28.0.
 
 \end{thebibliography}
