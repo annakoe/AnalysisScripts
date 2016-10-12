@@ -201,7 +201,7 @@ done
 
 To assess whether PCR error drives barcode diversity, I treated the gRNA part of the read like a barcode and plotted the correlation between number of reads and counts (see Figure 4.8. on page 134 of the PhD thesis and also section  \ref{subsec:Diagnostic_plot Counts vs reads} below). This assumes that the likelihood of introducing an error into the sequence is the same for the UMI barcodes and gRNA portions of the amplicon.
 
-The barcode sequence was replaced with the gRNA sequence for each read to generate a tab-separated file with columns [0] readID [1] gRNA chr:start-stop [2] 'pseudo-barcode'(gRNA sequence) as follows:
+The barcode sequence was replaced with the gRNA sequence for each read to generate a tab-separated file with columns (1) readID (2) gRNA chr:start-stop (3) 'pseudo-barcode'(gRNA sequence) as follows:
 
 \begin{lstlisting}
 #get gRNA sequence 
@@ -248,7 +248,7 @@ The script was run over all files with the extension \verb|_uniquelymapped_readI
 
 \begin{lstlisting}
 for i in *length_14;
-do python collapse_barcodes.py "$i" 0;
+do python collapse_barcodes.py "$i" 4;
 done
 \end{lstlisting}
 
@@ -397,7 +397,7 @@ A csv file of counts per gRNA for each sample can then be exported.
 
 \subsection{Calculating the number of reads per gRNA}
 
-To calculate the number of reads per gRNA for each sample, I wrote the script \verb|reads_per_gRNA.py|. This takes a 3 column tab-separated inputfile with the following columns: [0] read ID [1] gRNA chr:start-stop [2] 14 nt barcode and outputs a csv file with two columns: [0] gRNA chr:start-stop , [1] number of reads. The script can be invoked as follows:
+To calculate the number of reads per gRNA for each sample, I wrote the script \verb|reads_per_gRNA.py|. This takes a 3 column tab-separated inputfile with the following columns: (1) read ID (2) gRNA chr:start-stop (3) 14 nt barcode and outputs a csv file with two columns: (1) gRNA chr:start-stop , (2) number of reads. The script can be invoked as follows:
 
 \begin{lstlisting}
 for i in *length14; do python ./reads_per_gRNA.py "$i"; done
@@ -408,16 +408,29 @@ for i in *length14; do python ./reads_per_gRNA.py "$i"; done
 While the Bayesian model ouputs a csv file containing the counts per gRNA for each sample directly, the output of the script \verb|collapse-barcodes.py| (used to count gRNAs without error correction or to perform a naive PCR error correction) outputs one table per sample. This data can be merged into a single table listing for each gRNA the count in each sample using the script \verb|make_table_from_counts.py|. This script also adds information about which gene is targeted by each gRNA. The script takes a variable number of inputfiles to wrap into a table:
 
 \begin{lstlisting}
-python MakeTable_from_counts.py INPUTFILE1 INPUTFILE2 ... INPUTFILEn
+python makeTable_from_counts.py INPUTFILE1 INPUTFILE2 ... INPUTFILEn
 \end{lstlisting}
 
-This was used to generate the tables 
+This was used to generate the tables \verb|Dataframe_allsamples_readcounts.txt|  \verb||  \verb|| 
 
 \subsection{Generating the plots of counts versus number of reads for each gRNA}
 
 The number of reads per gRNA were plotted against the counts per gRNA, derived either without error correction, with naive PCR error correction or Bayesian PCR error correction (as described above), using the script \verb|plot_counts_vs_number_of_reads.py|.
 
+\begin{lstlisting}
+python plot_counts_vs_number_of_reads.py [Dataframe-Counts] [Dataframe-NumberOfReads] [Samplesheet]
+\end{lstlisting}
 
+\begin{lstlisting}
+# no PCR error correction
+plot_counts_vs_number_of_reads.py ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_no_errors.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_readcounts.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/samplefile.txt
+
+# naive PCR error correction (4 mismatches)
+plot_counts_vs_number_of_reads.py ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_readcounts.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/samplefile.txt
+
+# Bayesian error correction
+plot_counts_vs_number_of_reads.py ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/bayesian_correction_10Nov/bayesian_corrected.csv ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_readcounts.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/samplefile.txt
+\end{lstlisting}
 
 \section{Diagnostic plot: Counts versus number of sorted cells}
 

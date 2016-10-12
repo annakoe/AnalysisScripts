@@ -27,8 +27,8 @@
 \contentsline {subsection}{\numberline {4.7.1}Calculating the number of reads per gRNA}{44}{subsection.4.7.1}
 \contentsline {subsection}{\numberline {4.7.2}Wrapping gRNA counts of all samples into a table}{44}{subsection.4.7.2}
 \contentsline {subsection}{\numberline {4.7.3}Generating the plots of counts versus number of reads for each gRNA}{45}{subsection.4.7.3}
-\contentsline {section}{\numberline {4.8}Diagnostic plot: Counts versus number of sorted cells}{45}{section.4.8}
-\contentsline {section}{\numberline {4.9}Enrichment analysis using DESeq2}{45}{section.4.9}
-\contentsline {subsection}{\numberline {4.9.1}Preparing Bayesian error correction output for DESeq2}{45}{subsection.4.9.1}
-\contentsline {subsection}{\numberline {4.9.2}Visualising enrichment}{47}{subsection.4.9.2}
-\contentsline {subsection}{\numberline {4.9.3}Correlation of Log2Fold enrichment scores from DESeq2 between experiments}{47}{subsection.4.9.3}
+\contentsline {section}{\numberline {4.8}Diagnostic plot: Counts versus number of sorted cells}{46}{section.4.8}
+\contentsline {section}{\numberline {4.9}Enrichment analysis using DESeq2}{46}{section.4.9}
+\contentsline {subsection}{\numberline {4.9.1}Preparing Bayesian error correction output for DESeq2}{46}{subsection.4.9.1}
+\contentsline {subsection}{\numberline {4.9.2}Visualising enrichment}{48}{subsection.4.9.2}
+\contentsline {subsection}{\numberline {4.9.3}Correlation of Log2Fold enrichment scores from DESeq2 between experiments}{48}{subsection.4.9.3}

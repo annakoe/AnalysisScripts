@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.8.24)  12 OCT 2016 19:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.8.24)  12 OCT 2016 19:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -801,23 +801,23 @@ Overfull \hbox (18.75543pt too wide) in paragraph at lines 418--419
 tt/m/n/12 plot_counts_vs_number_of_reads.py\OT1/cmr/m/n/12 . 
  []
 
-
-Overfull \hbox (17.37514pt too wide) in paragraph at lines 422--422
+[45]
+Overfull \hbox (17.37514pt too wide) in paragraph at lines 435--435
 []\OT1/cmr/bx/n/17.28 Diagnostic plot: Counts ver-sus num-ber of sorted
  []
 
 
-Overfull \hbox (6.13261pt too wide) in paragraph at lines 424--425
+Overfull \hbox (6.13261pt too wide) in paragraph at lines 437--438
 \OT1/cmr/m/n/12 This script ac-cepts three user-arguments, a dataframe of gRNA 
 counts (c), a dataframe
  []
 
-[45] [46] [47]) [48] (./Master_Analysis.bbl [49
+[46] [47] [48]) [49] (./Master_Analysis.bbl [50
 
 
 ])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 173.
- [50]
+ [51]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 173.
  (./Master_Analysis.aux
 (./chapters/1_degenerate_libraries.aux) (./chapters/2_library_sequencing.aux)
@@ -829,8 +829,8 @@ Package rerunfilecheck Info: File `Master_Analysis.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 173.
  ) 
 Here is how much of TeX's memory you used:
- 11416 strings out of 493089
- 160514 string characters out of 6134842
+ 11428 strings out of 493089
+ 160688 string characters out of 6134842
  345490 words of memory out of 5000000
  14093 multiletter control sequences out of 15000+600000
  15086 words of font info for 57 fonts, out of 8000000 for 9000
@@ -851,10 +851,10 @@ ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texliv
 e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive
 /2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/
 2015/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Master_Analysis.pdf (51 pages, 272940 bytes).
+Output written on Master_Analysis.pdf (52 pages, 275178 bytes).
 PDF statistics:
- 1153 PDF objects out of 1200 (max. 8388607)
- 1073 compressed objects within 11 object streams
- 613 named destinations out of 1000 (max. 500000)
+ 1170 PDF objects out of 1200 (max. 8388607)
+ 1089 compressed objects within 11 object streams
+ 625 named destinations out of 1000 (max. 500000)
  241 words of extra memory for PDF output out of 10000 (max. 10000000)
 
