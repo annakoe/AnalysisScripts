@@ -1,4 +1,10 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{Hannon:Online}
+{\url{http://hannonlab.cshl.edu/fastx_toolkit/}}.
+
+\bibitem{FASTQC:Online}
+{\url{http://www.bioinformatics.babraham.ac.uk/projects/fastqc/}}.
 
 \bibitem{Retrieve:Online}
 {\url{http://www.biostars.org/p/1195/}}.
@@ -21,12 +27,36 @@ Bram De~Craene and Geert Berx.
   andprogression}.
 \newblock {\em Nat Rev Cancer}, 13(2), 2013.
 
+\bibitem{Kent:2002bw}
+W~James Kent, Charles~W Sugnet, Terrence~S Furey, Krishna~M Roskin, Tom~H
+  Pringle, Alan~M Zahler, and David Haussler.
+\newblock {The human genome browser at UCSC.}
+\newblock {\em Genome Research}, 12(6):996--1006, June 2002.
+
+\bibitem{Li:2009fi}
+H.~Li and R.~Durbin.
+\newblock {Fast and accurate short read alignment with Burrows-Wheeler
+  transform}.
+\newblock {\em Bioinformatics}, 25(14):1754--1760, 2009.
+
+\bibitem{Li:2009kaa}
+H~Li, B~Handsaker, A~Wysoker, T~Fennell, J~Ruan, N~Homer, G~Marth, G~Abecasis,
+  R~Durbin, and {1000 Genome Project Data Processing Subgroup}.
+\newblock {The Sequence Alignment/Map format and SAMtools}.
+\newblock {\em Bioinformatics}, 25(16):2078--2079, August 2009.
+
 \bibitem{Mali:2013ft}
 Prashant Mali, John Aach, P~Benjamin Stranges, Kevin~M Esvelt, Mark Moosburner,
   Sriram Kosuri, Luhan Yang, and George~M Church.
 \newblock {CAS9 transcriptional activators for target specificity screening and
   paired nickases for cooperative genome engineering}.
 \newblock {\em Nat Biotechnol}, 31(9):833--838, August 2013.
+
+\bibitem{Martin:2011va}
+M~Martin.
+\newblock {Cutadapt removes adapter sequences from high-throughput sequencing
+  reads}.
+\newblock {\em EMBnet journal}, 2011.
 
 \bibitem{Namiki:2013bv}
 Youhei Namiki, Takashi Ishida, and Yutaka Akiyama.
@@ -45,5 +75,16 @@ Herve Pages.
 \newblock {\em BSgenome: Infrastructure for Biostrings-based genome data
   packages}.
 \newblock R package version 1.28.0.
+
+\bibitem{Quinlan:2010km}
+A~R Quinlan and I~M Hall.
+\newblock {BEDTools: a flexible suite of utilities for comparing genomic
+  features}.
+\newblock {\em Bioinformatics}, 26(6):841--842, March 2010.
+
+\bibitem{Rice:2000wr}
+P~Rice, I~Longden, and A~Bleasby.
+\newblock {EMBOSS: the European Molecular Biology Open Software Suite.}
+\newblock {\em Trends in Genetics}, 16(6):276--277, June 2000.
 
 \end{thebibliography}

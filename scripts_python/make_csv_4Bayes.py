@@ -62,11 +62,13 @@ def count_barcodes(dict_seqfile):
 #write the dictionary into a csv file
 
 def write_dict_to_csv(dict_clustered_name, outfilename):
-    outfile = open( outfilename.split(".")[0]+str("_no_error_correction.csv"), 'w' )
+    outfile = open( outfilename.split(".")[0]+str("_barcode_readcounts.csv"), 'w' )
 
     for key, value in dict_clustered_name.items():  # iterate through the coll.dictionary
         for item in value.iteritems(): #iterate through the counter
             outfile.write( str(key) + "," + ','.join(map(str, item)) + '\n')
+
+    outfile.close() #recently added to make sure file is closed
 
 if (len(sys.argv) <> 2):
     print "Missing inputfile! Usage: python make_csv_james_model.py INPUTFILENAME"

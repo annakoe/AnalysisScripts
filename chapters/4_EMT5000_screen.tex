@@ -1,0 +1,505 @@
+\section{Read trimming and Quality Filtering}
+\label{sec:Bioinformatic analysis of screens with EMT5000 control library and stable cell lines}
+
+\definecolor{my-orange}{RGB}{255,138,12}
+\definecolor{my-green}{RGB}{103,215,36}  
+\definecolor{my-blue}{RGB}{44,100,192}  
+   
+gRNA sequences integrated into the genome of FACS-sorted cells were amplified using PCR to add Illumina Nextera adapters. Libraries were sequenced on the Illumina HiSeq instrument. The resulting sequencing reads have the following general structure:
+
+\texttt{{\color{my-green}NNNNNNN}\seqsplit{AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC}{\color{my-orange}G-N19-}\seqsplit{GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG}{\color{my-blue}NNNNNNN}}
+
+The first 7 N bases are the {\color{my-green}5' barcode}, followed by the plasmid 'stuffer'.  GN19 denotes the {\color{my-orange}gRNA sequence} from the EMT5000 library, which is followed by another plasmid sequence and the last 7 N bases are the {\color{my-blue}3' barcode}. The 5' and 3' barcodes serve as unique molecular identifiers (UMIs), allowing counting of original gRNA sequences extracted from lentivirus-infected cells by removing PCR-amplification bias.
+
+Sequences from Lane1 and Lane2 of the flow cell were combined using the unix 'cat' command. Next, the 5' barcode was extracted from the reads using cutadapt (version 1.2.1) \cite{Martin:2011va}, requiring a minimum overlap of 35 bp between the plasmid stuffer sequence and the read with a maximum error of 10 \% and a minimum barcode length of 7 bp.
+
+\begin{lstlisting}
+Command line parameters:
+-a AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -O 35 -m 7 
+
+# example bash loop to run cutadapt over all fastq files 
+# in the directory
+for i in *.fastq.gz
+do cutadapt -a AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -O 35 -m 7 --untrimmed-output="${i%.fastq.gz}"_5bc_untrimmed.fastq.gz -o "${i%.fastq.gz}"_5bc.fastq.gz "$i";
+done
+\end{lstlisting}
+
+The 3' barcode was retrieved from the read in an analogous way:
+
+\begin{lstlisting}
+Command line parameters:
+-g GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -O 28 -m 7
+
+# example bash loop to run cutadapt over all fastq files
+# in the directory
+for i in *.fastq.gz
+do cutadapt -g GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -O 28 -m 7 --untrimmed-output="${i%.fastq.gz}"_3bc_untrimmed.fastq.gz -o "${i%.fastq.gz}"_3bc.fastq.gz "$i";
+done
+\end{lstlisting}
+
+Finally, the gRNA sequence was extracted from the read, requiring a minimum length of 2 bp (to discard reads that contain no gRNAs and are derived from primer dimers):
+
+\begin{lstlisting}
+Command line parameters:
+cutadapt -g AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -a GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -n 2 -m 2 -O 10
+
+# example bash loop to run cutadapt over all fastq files 
+# in the directory
+for i in *.fastq.gz
+do cutadapt -g AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -a GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -n 2 -m 2 -O 10 --untrimmed-output="${i%.fastq.gz}"_gRNA_untrimmed.fastq.gz -o "${i%.fastq.gz}"_gRNA.fastq.gz "$i";
+done
+
+\end{lstlisting}
+
+Next, the barcode and gRNA reads were quality-filtered using \verb|fastq_quality_filter| from the fastx-toolbox \cite{Hannon:Online}. Reads where any base has a Quality score of less than 20 were discarded (Example code below is for the gRNA reads.) 
+
+\begin{lstlisting}
+Command line parameters: -Q33 -q 20 -p 1 
+
+#loop over all files in directory:
+for i in *_gRNA.fastq; do fastq_quality_filter -Q33 -q 20 -p 1 -i "$i" -o "${i%_gRNA.fastq}"_gRNA_Q20.fastq; done
+\end{lstlisting}
+
+Subsequently files were converted from fastq to fasta format using \verb|fastq_to_fasta| from the fastx-toolbox \cite{Hannon:Online}. 
+
+\begin{lstlisting}
+for i in *_gRNA_Q20.fastq;
+do fastq_to_fasta -Q33 -n -i  "$i" -o "${i%gRNA_Q20.fastq}"gRNA_Q20.fasta;
+done
+\end{lstlisting}
+
+\section{Alignment to the EMT5000 library}
+
+Guide RNA reads were next aligned back onto the indexed EMT5000 reference library using bwa (version: 0.6.2-r126) \cite{Li:2009fi}.
+
+The indexed EMT5000 library file used as a reference for alignment and was derived from the file \verb|GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique_strand_PAMremoved.fa| (see section \ref{Bioinf_methods: EMT5000 library}) using \verb|bwa index|:
+
+\begin{lstlisting}
+bwa index GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique_strand_PAMremoved.fa
+\end{lstlisting}
+
+I empirically tested the following alignment parameters:
+
+\begin{lstlisting}
+#Command line options no mismatches, no indels:
+bwa aln -n 0 -o 0 -l 5 -N -I
+
+#Command line options 2 mismatches, no indels:
+bwa aln -n 2 -o 0 -l 5 -N -I
+
+#Command line options 3 mismatches, no indels:
+bwa aln -n 3 -o 0 -l 5 -N -I
+
+#Command line options 2 mismatches and default open gaps (1):
+bwa aln -n 2 -l 5 -N -I  
+
+#Command line options 3 mismatches and default open gaps (1):
+do bwa aln -n 3 -l 5 -N -I
+\end{lstlisting}
+
+I found that allowing 2 mismatches and 1 gap gave the best alignment (see also the table of read numbers included in the Appendix of the PhD thesis). The alignment was invoked as follows:
+
+\begin{lstlisting}
+for i in ../*_Q20.fasta;
+do bwa aln -n 2 -l 5 -N -I EMT5000_library_reference/GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_
+complete_noPAM_unique_strand_PAMremoved.fa "$i" > "${i%Q20.fasta}"Q20_aligned_2mismatches1gap.sai;
+done
+
+for i in *Q20_aligned_2mismatches1gap.sai;
+do bwa samse -n 10000 EMT5000_library_reference/GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_
+complete_noPAM_unique_strand_PAMremoved.fa "$i" "${i%Q20_aligned_2mismatches1gap.sai}"Q20.fasta > "${i%Q20_aligned_2mismatches1gap.sai}"Q20_aligned_2mismatches1gap.sam;
+done
+\end{lstlisting}
+
+Following alignment allowing 2 mismaches and 1 gap, reads that mapped uniquely to the forward strand were extracted using Samtools \cite{Li:2009kaa}:
+
+\begin{lstlisting}
+samtools view -F 20 -q 1 -S aligned_gRNA.sam  > gRNA_uniquely_mapped.sam
+\end{lstlisting}
+
+To check how many different gRNAs from the library were sequenced in each sample, use:
+
+\begin{lstlisting}
+samtools view -F 20 -S  aligned_gRNA.sam | cut -f 3 | sort | uniq | wc -l
+\end{lstlisting}
+
+
+\section{Combining the gRNA and adapter sequences in a single file}
+
+For subsequent analysis it was necessary to construct a tab-separated file with 3 columns containing the FASTA identifier (read-ID), gRNA chr:start-end and barcode sequence for each read.
+
+\begin{lstlisting}
+# extract the gRNA:
+samtools view -F 20 -q 1 -S aligned_gRNA.sam | awk '{print$1 ".\t" $3}'  > gRNA_uniquelymapped
+
+# extract the FASTA identifier:
+samtools view -F 20 -q 1 -S aligned_gRNA.sam | awk '{print$1 "."}' > gRNA_uniquelymapped_readID
+\end{lstlisting}
+
+The files containing the quality-filtered 5' and 3' barcode (UMI sequence) generated above, were modified as follows (shown for 5' barcode only):
+
+\begin{lstlisting}
+for i in *_5bc_Q20.fasta
+do cat "$i" | paste - - | awk -F ' ' '{print $1 ".\t" $3}' > "${i%_5bc_Q20.fasta}"_5bc_Q20_point.fasta;
+done
+\end{lstlisting}
+
+Next, only the barcodes associated with gRNAs that aligned uniquely were retrieved using grep:
+
+\begin{lstlisting}
+for i in *_5bc_Q20_point.fasta
+do grep -wFf "${i%_5bc_Q20_point.fasta}"gRNA_uniquelymapped_readID "$i" > "${i%_5bc_Q20_point.fasta}"gRNA_uniquelymapped_readID_with_5bc;
+done
+\end{lstlisting}
+
+For each read, identified by its readID, the gRNA sequence and 5' and 3' barcodes were combined into a single file. The three files were joined (finding the union) using the JOIN command, which requires the files to be sorted in the following way:
+
+\begin{lstlisting}
+for i in *gRNA_uniquelymapped;
+do awk -F "\t" '{print ">" $1 "\t" $2}' "$i"| sort -k 1b,1 > "${i%}"_sorted;
+done
+
+for i in *gRNA_uniquelymapped_readID_with_3bc;
+do sort -k 1b,1 "$i" > "${i%}"_sorted;
+done
+
+for i in *gRNA_uniquelymapped_readID_with_5bc; do sort -k 1b,1 "$i" > "${i%}"_sorted;
+done
+\end{lstlisting}
+
+Next, the three files were joined as follows:
+
+\begin{lstlisting}
+for i in *gRNA_uniquelymapped_sorted;
+do join "$i" "${i%gRNA_uniquelymapped_sorted}"gRNA_uniquelymapped_readID_with_5bc_sorted | join - "${i%gRNA_uniquelymapped_sorted}"gRNA_uniquelymapped_readID_with_3bc_sorted > "${i%gRNA_uniquelymapped_sorted}"gRNA_uniquelymapped_readID_gRNA_5bc_3bc_length14;
+done
+\end{lstlisting}
+
+This yields a file containing for each uniquely mapped read its readID, the gRNA it mapped to (chr:start-stop) and the UMI found in the read (of length exactly 14 bp).
+
+
+\section{Deriving gRNA counts from UMI-barcodes without PCR error correction}
+
+The gRNA counts were derived by counting the number of times each gRNA occurs together with each barcode, which acts as a unique molecular identifier (UMI). To do the gRNA counting without any error correction, the script \verb|collapse_barcodes.py| was run using a maximum edit distance of 0, i.e. not correcting any PCR errors that might have occurred in the barcode. This script can be invoked as follows:
+
+\begin{lstlisting}
+python collapse_barcodes.py Inputfilename 0
+\end{lstlisting}
+
+The script accepts a tab-separated file with columns for (1) read-ID, (2) gRNA (chr:start-stop), (3) barcode and outputs two outputfiles with extension \verb|_frequency_raw| and \verb|frequency_no_orphans|. In the latter output orphan barcodes, i.e. barcodes that are only present in a single read, were removed prior to gRNA counting. Each output file has two comma-separated columns listing (1) the gRNA (chr:start-stop) and (2) the gRNA count.
+
+The script was run over all files with the extension \verb|_uniquelymapped_readID_gRNA_5bc_3bc_length14| as follows:
+
+\begin{lstlisting}
+for i in *length_14;
+do python collapse_barcodes.py "$i" 0;
+done
+\end{lstlisting}
+
+
+\subsection{Assessing PCR error by plotting the number of reads per gRNA against number of different gRNA sequences}
+
+To assess whether PCR error drives barcode diversity, I treated the gRNA part of the read like a barcode and plotted the correlation between number of reads and counts (see Figure 4.8. on page 134 of the PhD thesis and also section  \ref{subsec:Diagnostic_plot Counts vs reads} below). This assumes that the likelihood of introducing an error into the sequence is the same for the UMI barcodes and gRNA portions of the amplicon.
+
+The barcode sequence was replaced with the gRNA sequence for each read to generate a tab-separated file with columns [0] readID [1] gRNA chr:start-stop [2] 'pseudo-barcode'(gRNA sequence) as follows:
+
+\begin{lstlisting}
+#get gRNA sequence 
+cat Sample_gRNA_Q20.fasta | paste - - | awk -F ' ' '{print $1 ".\t" $3}' | sort > Sample_gRNA_Q20_point
+
+#get the read ID
+awk -F '\t' '{print $1}' Sample_gRNA_5bc_3bc_length14 | sort > Sample_gRNA_5bc_3bc_length14_read_ID
+
+#get gRNA sequence for each readID
+grep -wFf Sample_gRNA_5bc_3bc_length14_read_ID Sample_gRNA_Q20_point > Sample_gRNA_Q20_point_uniquely_mapped
+
+#sort the previously generate file containing [0] readID, [1] gRNA chr:start-stop, [2] UMI of 5' and 3' barcode
+sort -k 1b,1 Sample_gRNA_uniquelymapped_readID_gRNA_5bc_3bc_length14 > Sample_gRNA_uniquelymapped_
+readID_gRNA_5bc_3bc_length14_sorted
+
+#sort the gRNA sequence file
+sort -k 1b,1 Sample_gRNA_Q20_point_uniquely_mapped > Sample_gRNA_Q20_point_uniquely_mapped_sorted
+
+#join the two files on readID
+join Sample_gRNA_Q20_aligned_2mismatches1gap_uniquelymapped_
+readID_gRNA_5bc_3bc_length14_sorted Sample_gRNA_Q20_point_uniquely_mapped_sorted | awk -F ' ' '{print $1 "\t" $2 "\t" $4}' > Sample_gRNA_Q20_aligned_2mismatches1gap_uniquelymapped_
+readID_gRNA_instead_of_barcode
+\end{lstlisting}
+
+This file was then run through \verb|collapse_barcodes.py| as above and results were plotted as described in section \ref{subsec:Diagnostic_plot Counts vs reads}.
+
+\begin{lstlisting}
+python collapse_barcodes.py Sample_gRNA_Q20_aligned_2mismatches1gap_
+uniquelymapped_readID_gRNA_instead_of_barcode 0
+\end{lstlisting}
+
+\section{Deriving gRNA counts from UMI-barcodes with naive PCR error correction}
+
+The script \verb|collapse_barcodes.py| was run using a maximum edit distance of 4. 
+
+\begin{lstlisting}
+python collapse_barcodes.py Samplefilename 4
+\end{lstlisting}
+
+This means that before counting how many different barcodes are associated with each gRNA, the barcodes are collapsed into groups. Barcodes are first ranked in decreasing order based on the number of reads harbouring its sequence. The barcode with the most reads forms the first group. If the second-ranked barcode is within 4 edit-distances of this barcode it will be assumed to have originated by PCR error and will be added to the group. If the barcode differs from the group by greater than 4 edits, it will form its own group and so on. The number of groups per gRNA is the count after error correction. This reflects the number of original gRNA-barcode combinations.
+
+
+The script was run over all files with the extension \verb|_uniquelymapped_readID_gRNA_5bc_3bc_length14| as follows:
+
+\begin{lstlisting}
+for i in *length_14;
+do python collapse_barcodes.py "$i" 0;
+done
+\end{lstlisting}
+
+
+\section{Bayesian PCR error correction of barcoded sequencing data }
+
+A Bayesian error correction script was written by James E. Barrett to infer gRNA counts from the UMI data. The model takes into account the fact that the 14 bp UMI consists of a 5' and 3' barcode that was attached to the gRNA amplicon during and initial round off PCR amplification during the sequencing library prep. The model infers the most likely number of initial gRNA-barcode data given the barcode sequences observed in the sequencing sample.
+
+This Bayesian model takes as input the number of reads associated with each gRNA-UMI combination (without PCR error correction). I calculated these using the script make-csv-4Bayes.py. The script was run over all samples as follows:
+
+\begin{lstlisting}
+for i in *length14; do python ../make_csv_4Bayes.py "$i"; done
+\end{lstlisting}
+
+This script again takes the tab-separated three column file that lists (1) read ID, (2) gRNA (chr:start-end) and (3) barcode consisting of 5' UMI and 3' UMI fused together as input. The output is a csv file with three columns containing (1) gRNA (chr:start-end), (2) barcode consisting of 5' UMI and 3' UMI fused together and (3) number of reads associated with each barcode. The outputfile has the extension \verb|_barcode_readcounts.csv| and is  fed into a Bayesian error correction script described below.
+
+\subsection{Bayesian PCR error correction of barcoded sequencing count data script by James E. Barrett}
+
+This script and documentation was kindly contributed by James E. Barrett. 
+
+The Bayesian model infers the number of unique original barcoded gRNA molecules from noise-corrupted count data. The model estimates a corrected read count, which may be interpreted as a proxy for the original noise-free number of unique barcodes associated with a particular gRNA. 
+
+\subsubsection{Model definition}
+For each gRNA we observe $N$ barcode pairs denoted by $(\vecy_{i}^1,\vecy_{i}^2)$ where the superscript denotes the first and second barcodes and $i=1,\ldots,N$. Elements of the $d$-dimensional vector $\vecy_{i}^{\eta}\in\{\verb+T+,\verb+C+,\verb+G+,\verb+A+\}^d$ where $\eta=[1,2]$. The number of corresponding sequencing reads is denoted by $\sigma_{i}\in\mathbb{Z}_+$. 
+
+The model assumes that there exist $Q$ \emph{latent barcodes} $\vecx_1^{\eta},\ldots,\vecx_Q^{\eta}$ from which the observed barcodes are generated in a noise corrupting stochastic process (PCR amplification errors and random barcode switching). The model further assumes that for each pair $(\vecy_i^1,\vecy_i^2)$ only one of the observed barcodes is written in terms of the latent barcode via
+\begin{equation}
+\vecy_i^{\eta} = \sum_{q=1}^Q w_{iq}^{\eta}\theta(\vecx_{q}^{\eta})\quad\text{subject to}\quad w_{iq}^{\eta}\in[0,1]\quad\text{and}\quad\sum_{q,\eta} w_{iq}^{\eta} = 1.
+\end{equation}
+There is therefore only one non-zero value of $[\vecw_i^1,\vecw_i^2]$ that indicates which latent barcode the observed pair is associated with. The function $\theta$ represents a noise corrupting stochastic process where the status of each nucleotide site may be changed randomly with probability $\beta\in[0,1/2]$. We can therefore write
+\begin{equation}
+p(y_{i\mu}^{\eta}|x_{q\mu}^{\eta},\beta) = \left\{
+\begin{array}{lr}
+(1-\beta)\delta_{y_{i\mu}^{\eta}x_{q\mu}^{\eta}} + \beta (1-\delta_{y_{i\mu}^{\eta}x_{q\mu}^{\eta}})&\quad\text{if $w_{iq}^{\eta}=1$}\\
+0&\quad\text{otherwise}\\
+\end{array}
+\right.
+\end{equation}
+for $\mu=1,\ldots,d$. We denote the collections of $\vecx_{q}^{\eta}$, $\vecy_i^{\eta}$ and $\vecw_i^{\eta}$ by $\matX$, $\matY$, and $\matW$ respectively. The posterior is
+\begin{equation}
+p(\matX,\matW|\matY,\sv,\beta) \propto p(\matY|\matX,\matW,\sv,\beta)p(\matX)p(\matW)
+\end{equation}
+with
+\begin{align}
+p(\matY|\matX,\matW,\sv,\beta) &=\prod_{i}\left[\sum_{q,\eta}w_{iq}^{\eta} p(\vecy_i^{\eta}|\vecx_q^{\eta},\beta)\right]^{\sigma_i}.
+\label{eq:likelihood}
+\end{align}
+Maximum entropy priors for $\matX$ and $\matW$ are uniform distributions so $p(\matX)$ and $p(\matW)$ are constant.
+
+\subsubsection{Inference of model parameters}
+
+The Maximum A Posteriori (MAP) solution of $\matW$ is denoted by $\matW^*$. Since only one element of $[\vecw_i^1,\vecw^2_i]$ is non-zero the expression (\ref{eq:likelihood}) is maximised by selecting $\text{argmax}_{q,\eta} p(\vecy_i^{\eta}|\vecx_q^{\eta},\beta)$ as the non-zero element.
+
+To find the MAP solution for nucleotide $\mu$ of the latent barcode indexed by $(q,\eta)$ we consider all observed barcodes that generated from it (as defined by $\matW$). If we let $n_1$ and $n_0$ denote the total number of matches and mismatches respectively between that latent barcode and the associated observed barcodes, then the corresponding data likelihood is $(1-\beta)^{n^1_{q\mu}}\beta^{n^0_{q\mu}}$. This will be maximised if the number of matches is maximised. This is achieved selecting the most common observed nucleotide as the value for the latent nucleotide (while taking into account multiple counts).
+
+If we let $N_1$ and $N_0$ denote the total number of matches and mismatches respectively across all of the latent barcodes and observed data then we can write 
+\begin{equation}
+\log p(\matY|\matX,\matW,\beta) = N_1 \log(1-\beta) + N_0\log\beta.
+\end{equation}
+It is straightforward to show that the MAP estimate for beta is
+\begin{equation}
+\beta = \frac{N_0}{N_0+N_1}.
+\end{equation}
+
+
+The optimisation subroutine is initialised as follows:
+
+Cluster into $Q$ groups based on the \emph{Hamming distance} between two barcodes (the Hamming distance is equivalent to the \emph{edit distance}):
+\begin{equation}
+h(\vecy_i,\vecy_j) = \frac{1}{d}\sum_{\mu=1}^{d}\delta_{(1-y_{i\mu})y_{j\mu}}.
+\end{equation}
+
+
+The corrected read counts are inferred as follows:
+
+For a given value of $Q$ we denote the value of the likelihood (\ref{eq:likelihood}) at the MAP parameter estimate by
+\begin{equation}
+L(Q) = p(\matY|\matX^*,\matW^*,\beta^*).
+\end{equation}
+The \emph{Bayes information criterion} (BIC) score is defined by
+\begin{equation}
+\text{BIC}(Q) = -2\log L(Q) + 2dQ\log N
+\end{equation}
+where $2dQ$ is the number of free parameters in the model. The \emph{corrected read count} is defined by
+\begin{equation}
+Q^* = \text{argmin}_Q \text{BIC}(Q).
+\end{equation}
+
+
+\subsubsection{Bayesian error correction script: The Code}
+
+The analysis is  performed in R:
+
+\begin{lstlisting}
+library(reshape2)
+
+### Load and prepare a data file
+
+# Length of barcode
+D <- 7
+# Load up one of the data files (needs to be in the current directory)
+data <- read.csv("Samplename_length14_barcode_readcounts.csv",header=FALSE)
+# vector of all the unique gRNA names
+gRNA <- unique(data$V1)
+# Total number of unique gRNAs
+G <- length(gRNA)
+
+### Generate datasets of barcodes
+
+# Preallocate a list structure to hold the barcode datasets
+Y <- vector('list',G)
+
+# This loop goes through each gRNA, pulls out all the associated barcodes and puts them in a character matrix
+for(mu in 1:G){
+   ind <- which(data[[1]]==gRNA[mu])
+   N <- length(ind)
+   # Converts into character matrix (not the most elegant way...)
+   Y[[mu]] <- matrix(as.vector(melt(lapply(as.character(data[[2]][ind]),strsplit,split=""))$value),nrow=N,ncol=2*D,byrow=TRUE)
+}
+
+### Fit model for each gRNA
+
+# Preallocate a list of model resuls
+res <- vector('list',G)
+
+# Loop through gRNAs, for each one fit a model and get the corrected read count
+# This can be parallelised for speed
+for(mu in 1:G){
+   # Begin tryCatch (catches any errors instead of stopping the loop)
+   tryCatch({
+      # Indices for barcodes matched that the current gRNA
+      ind <- which(data[[1]]==gRNA[mu])
+      # Vector of read counts
+      counts <- data[[3]][ind]
+      # Fit the model
+      res[[mu]] <- fit_model(Y[[mu]], counts)
+   }, error=function(e) NULL) #End tryCatch
+} # End loop over gRNAs
+\end{lstlisting}
+
+This analysis calls functions stored in the R scripts \verb|fit_model.R|, \verb|LL.R| and \verb|hamming.R|.
+A csv file of counts per gRNA for each sample can then be exported.
+
+\section{Diagnostic plot: Number of UMI-corrected counts versus number of reads per gRNA}
+\label{subsec:Diagnostic_plot Counts vs reads}
+
+\subsection{Calculating the number of reads per gRNA}
+
+To calculate the number of reads per gRNA for each sample, I wrote the script \verb|reads_per_gRNA.py|. This takes a 3 column tab-separated inputfile with the following columns: [0] read ID [1] gRNA chr:start-stop [2] 14 nt barcode and outputs a csv file with two columns: [0] gRNA chr:start-stop , [1] number of reads. The script can be invoked as follows:
+
+\begin{lstlisting}
+for i in *length14; do python ./reads_per_gRNA.py "$i"; done
+\end{lstlisting}
+
+\subsection{Wrapping gRNA counts of all samples into a table}
+
+While the Bayesian model ouputs a csv file containing the counts per gRNA for each sample directly, the output of the script \verb|collapse-barcodes.py| (used to count gRNAs without error correction or to perform a naive PCR error correction) outputs one table per sample. This data can be merged into a single table listing for each gRNA the count in each sample using the script \verb|make_table_from_counts.py|. This script also adds information about which gene is targeted by each gRNA. The script takes a variable number of inputfiles to wrap into a table:
+
+\begin{lstlisting}
+python MakeTable_from_counts.py INPUTFILE1 INPUTFILE2 ... INPUTFILEn
+\end{lstlisting}
+
+This was used to generate the tables 
+
+\subsection{Generating the plots of counts versus number of reads for each gRNA}
+
+The number of reads per gRNA were plotted against the counts per gRNA, derived either without error correction, with naive PCR error correction or Bayesian PCR error correction (as described above), using the script \verb|plot_counts_vs_number_of_reads.py|.
+
+
+
+\section{Diagnostic plot: Counts versus number of sorted cells}
+
+This script accepts three user-arguments, a dataframe of gRNA counts (c), a dataframe of numbers of sorted cells per sample (n), and a samplesheet (s) and returns a scatterplot of sorted cells versus counts with one data point per sample in the samplesheet.
+
+
+
+\section{Enrichment analysis using DESeq2}
+
+\subsection{Preparing Bayesian error correction output for DESeq2}
+
+DeSeq requires for each experiment a list of counts per gRNA.The data for each experiment were extracted from the Bayesian analysis output. gRNAs where 3/4 of the counts in a given experiment are 0 (or NA) are removed before enrichment analysis as follows:
+
+\begin{lstlisting}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import collections as coll
+import re
+import pylab
+
+###Functions###
+
+def remove_underscore_column_names(dataset):
+    dataset_renamed = dataset.rename(columns=lambda x: re.sub(r"_.*", "",x))
+    return dataset_renamed
+    
+def generate_samplefile(samplefilename):
+    samplefile =[]
+    with open(samplefilename) as infile:
+        for line in infile: #remove everything after the first underscoe and remove newline
+            samplefile.append(re.sub(r"_.*", "", str(line.rstrip("\n"))))
+    return samplefile
+    
+def remove_3quarters_NAs(dataframe):
+    df_with_NAs = dataframe.replace('0', np.nan)
+    thresh = int(len(df_with_NAs.columns)/4*3)
+    NA_removed =df_with_NAs.dropna(axis='index', thresh=thresh)
+    return NA_removed
+    
+ def save_df_for_samplefile(samplefile, samplefilename): #this function calls all other functions
+    df_samplefile = df_bayes[samplefile]
+    df_samplefile = remove_3quarters_NAs(df_samplefile)
+    df_samplefile = df_samplefile.fillna(0)
+    df_samplefile.to_csv(str(samplefilename)+'_counts.csv')
+
+###Script###
+
+df_bayes = pd.DataFrame.from_csv('path_2/bayesian_corrected_counts.csv', header=0, sep=',', index_col=0)
+
+samplefilename = 'path_2/samplefile.txt'
+samplefile =generate_samplefile(samplefilename)
+
+save_df_for_samplefile(samplefile, samplefilename)
+\end{lstlisting}
+
+
+\subsection{Visualising enrichment}
+
+
+\subsection{Correlation of Log2Fold enrichment scores from DESeq2 between experiments}
+
+\begin{lstlisting}
+library ("DESeq2")
+
+experiment_info <- read.table("path2/ThisExperiment_DeSeq2_ColData.csv", sep=",", header=TRUE, blank.lines.skip = TRUE, row.names = "Sample.name")
+counts<-read.table("path2/ThisExperiment_counts_bayes_new.csv", sep=",", header=TRUE, na.strings="NaN", check.names=FALSE, row.names=1)
+
+
+counts_Batch5[is.na(counts_Batch5)] <- 0  #replace NAs with 0
+dds_Batch5<- DESeqDataSetFromMatrix(countData=counts_Batch5, colData = experiment_info_Batch5, design = ~treatment)
+#converting counts to integer mode
+dds_Batch5<-DESeq(dds_Batch5)
+
+res<-results(dds_Batch5)
+resOrdered <- res[order(res$padj),]
+resOrdered
+\end{lstlisting}
+
+
+
+
+
+
+
