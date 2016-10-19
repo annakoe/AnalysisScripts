@@ -13,7 +13,7 @@ The first 7 N bases are the {\color{my-green}5' barcode}, followed by the plasmi
 
 Sequences from Lane1 and Lane2 of the flow cell were combined using the unix 'cat' command. Next, the 5' barcode was extracted from the reads using cutadapt (version 1.2.1) \cite{Martin:2011va}, requiring a minimum overlap of 35 bp between the plasmid stuffer sequence and the read with a maximum error of 10 \% and a minimum barcode length of 7 bp.
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 Command line parameters:
 -a AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -O 35 -m 7 
 
@@ -22,11 +22,11 @@ Command line parameters:
 for i in *.fastq.gz
 do cutadapt -a AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -O 35 -m 7 --untrimmed-output="${i%.fastq.gz}"_5bc_untrimmed.fastq.gz -o "${i%.fastq.gz}"_5bc.fastq.gz "$i";
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 The 3' barcode was retrieved from the read in an analogous way:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 Command line parameters:
 -g GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -O 28 -m 7
 
@@ -35,11 +35,11 @@ Command line parameters:
 for i in *.fastq.gz
 do cutadapt -g GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -O 28 -m 7 --untrimmed-output="${i%.fastq.gz}"_3bc_untrimmed.fastq.gz -o "${i%.fastq.gz}"_3bc.fastq.gz "$i";
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 Finally, the gRNA sequence was extracted from the read, requiring a minimum length of 2 bp (to discard reads that contain no gRNAs and are derived from primer dimers):
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 Command line parameters:
 cutadapt -g AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -a GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -n 2 -m 2 -O 10
 
@@ -49,24 +49,24 @@ for i in *.fastq.gz
 do cutadapt -g AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -a GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -n 2 -m 2 -O 10 --untrimmed-output="${i%.fastq.gz}"_gRNA_untrimmed.fastq.gz -o "${i%.fastq.gz}"_gRNA.fastq.gz "$i";
 done
 
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 Next, the barcode and gRNA reads were quality-filtered using \verb|fastq_quality_filter| from the fastx-toolbox \cite{Hannon:Online}. Reads where any base has a Quality score of less than 20 were discarded (Example code below is for the gRNA reads.) 
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 Command line parameters: -Q33 -q 20 -p 1 
 
 #loop over all files in directory:
 for i in *_gRNA.fastq; do fastq_quality_filter -Q33 -q 20 -p 1 -i "$i" -o "${i%_gRNA.fastq}"_gRNA_Q20.fastq; done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 Subsequently files were converted from fastq to fasta format using \verb|fastq_to_fasta| from the fastx-toolbox \cite{Hannon:Online}. 
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in *_gRNA_Q20.fastq;
 do fastq_to_fasta -Q33 -n -i  "$i" -o "${i%gRNA_Q20.fastq}"gRNA_Q20.fasta;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 \section{Alignment to the EMT5000 library}
 
@@ -74,13 +74,13 @@ Guide RNA reads were next aligned back onto the indexed EMT5000 reference librar
 
 The indexed EMT5000 library file used as a reference for alignment and was derived from the file \verb|GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique_strand_PAMremoved.fa| (see section \ref{Bioinf_methods: EMT5000 library}) using \verb|bwa index|:
 
-\begin{lstlisting}
-bwa index GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique_strand_PAMremoved.fa
-\end{lstlisting}
+\begin{small}\begin{lstlisting}
+bwa index GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_ complete_noPAM_unique_strand_PAMremoved.fa
+\end{lstlisting}\end{small}
 
 I empirically tested the following alignment parameters:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 #Command line options no mismatches, no indels:
 bwa aln -n 0 -o 0 -l 5 -N -I
 
@@ -95,66 +95,66 @@ bwa aln -n 2 -l 5 -N -I
 
 #Command line options 3 mismatches and default open gaps (1):
 do bwa aln -n 3 -l 5 -N -I
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 I found that allowing 2 mismatches and 1 gap gave the best alignment (see also the table of read numbers included in the Appendix of the PhD thesis). The alignment was invoked as follows:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in ../*_Q20.fasta;
 do bwa aln -n 2 -l 5 -N -I EMT5000_library_reference/GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_
-complete_noPAM_unique_strand_PAMremoved.fa "$i" > "${i%Q20.fasta}"Q20_aligned_2mismatches1gap.sai;
+complete _noPAM_unique_strand_PAMremoved.fa "$i" > "${i%Q20.fasta}"Q20_aligned_2mismatches1gap.sai;
 done
 
 for i in *Q20_aligned_2mismatches1gap.sai;
 do bwa samse -n 10000 EMT5000_library_reference/GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_
 complete_noPAM_unique_strand_PAMremoved.fa "$i" "${i%Q20_aligned_2mismatches1gap.sai}"Q20.fasta > "${i%Q20_aligned_2mismatches1gap.sai}"Q20_aligned_2mismatches1gap.sam;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 Following alignment allowing 2 mismaches and 1 gap, reads that mapped uniquely to the forward strand were extracted using Samtools \cite{Li:2009kaa}:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 samtools view -F 20 -q 1 -S aligned_gRNA.sam  > gRNA_uniquely_mapped.sam
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 To check how many different gRNAs from the library were sequenced in each sample, use:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 samtools view -F 20 -S  aligned_gRNA.sam | cut -f 3 | sort | uniq | wc -l
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 
 \section{Combining the gRNA and adapter sequences in a single file}
 
 For subsequent analysis it was necessary to construct a tab-separated file with 3 columns containing the FASTA identifier (read-ID), gRNA chr:start-end and barcode sequence for each read.
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 # extract the gRNA:
 samtools view -F 20 -q 1 -S aligned_gRNA.sam | awk '{print$1 ".\t" $3}'  > gRNA_uniquelymapped
 
 # extract the FASTA identifier:
 samtools view -F 20 -q 1 -S aligned_gRNA.sam | awk '{print$1 "."}' > gRNA_uniquelymapped_readID
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 The files containing the quality-filtered 5' and 3' barcode (UMI sequence) generated above, were modified as follows (shown for 5' barcode only):
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in *_5bc_Q20.fasta
 do cat "$i" | paste - - | awk -F ' ' '{print $1 ".\t" $3}' > "${i%_5bc_Q20.fasta}"_5bc_Q20_point.fasta;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 Next, only the barcodes associated with gRNAs that aligned uniquely were retrieved using grep:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in *_5bc_Q20_point.fasta
 do grep -wFf "${i%_5bc_Q20_point.fasta}"gRNA_uniquelymapped_readID "$i" > "${i%_5bc_Q20_point.fasta}"gRNA_uniquelymapped_readID_with_5bc;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 For each read, identified by its readID, the gRNA sequence and 5' and 3' barcodes were combined into a single file. The three files were joined (finding the union) using the JOIN command, which requires the files to be sorted in the following way:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in *gRNA_uniquelymapped;
 do awk -F "\t" '{print ">" $1 "\t" $2}' "$i"| sort -k 1b,1 > "${i%}"_sorted;
 done
@@ -165,15 +165,15 @@ done
 
 for i in *gRNA_uniquelymapped_readID_with_5bc; do sort -k 1b,1 "$i" > "${i%}"_sorted;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 Next, the three files were joined as follows:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in *gRNA_uniquelymapped_sorted;
 do join "$i" "${i%gRNA_uniquelymapped_sorted}"gRNA_uniquelymapped_readID_with_5bc_sorted | join - "${i%gRNA_uniquelymapped_sorted}"gRNA_uniquelymapped_readID_with_3bc_sorted > "${i%gRNA_uniquelymapped_sorted}"gRNA_uniquelymapped_readID_gRNA_5bc_3bc_length14;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 This yields a file containing for each uniquely mapped read its readID, the gRNA it mapped to (chr:start-stop) and the UMI found in the read (of length exactly 14 bp).
 
@@ -182,19 +182,21 @@ This yields a file containing for each uniquely mapped read its readID, the gRNA
 
 The gRNA counts were derived by counting the number of times each gRNA occurs together with each barcode, which acts as a unique molecular identifier (UMI). To do the gRNA counting without any error correction, the script \verb|collapse_barcodes.py| was run using a maximum edit distance of 0, i.e. not correcting any PCR errors that might have occurred in the barcode. This script can be invoked as follows:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 python collapse_barcodes.py Inputfilename 0
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 The script accepts a tab-separated file with columns for (1) read-ID, (2) gRNA (chr:start-stop), (3) barcode and outputs two outputfiles with extension \verb|_frequency_raw| and \verb|frequency_no_orphans|. In the latter output orphan barcodes, i.e. barcodes that are only present in a single read, were removed prior to gRNA counting. Each output file has two comma-separated columns listing (1) the gRNA (chr:start-stop) and (2) the gRNA count.
 
-The script was run over all files with the extension \verb|_uniquelymapped_readID_gRNA_5bc_3bc_length14| as follows:
+The script was run over all files with the extension
 
-\begin{lstlisting}
+\verb|_uniquelymapped_readID_gRNA_5bc_3bc_length14| as follows:
+
+\begin{small}\begin{lstlisting}
 for i in *length_14;
 do python collapse_barcodes.py "$i" 0;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 
 \subsection{Assessing PCR error by plotting the number of reads per gRNA against number of different gRNA sequences}
@@ -203,7 +205,7 @@ To assess whether PCR error drives barcode diversity, I treated the gRNA part of
 
 The barcode sequence was replaced with the gRNA sequence for each read to generate a tab-separated file with columns (1) readID (2) gRNA chr:start-stop (3) 'pseudo-barcode'(gRNA sequence) as follows:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 #get gRNA sequence 
 cat Sample_gRNA_Q20.fasta | paste - - | awk -F ' ' '{print $1 ".\t" $3}' | sort > Sample_gRNA_Q20_point
 
@@ -224,33 +226,35 @@ sort -k 1b,1 Sample_gRNA_Q20_point_uniquely_mapped > Sample_gRNA_Q20_point_uniqu
 join Sample_gRNA_Q20_aligned_2mismatches1gap_uniquelymapped_
 readID_gRNA_5bc_3bc_length14_sorted Sample_gRNA_Q20_point_uniquely_mapped_sorted | awk -F ' ' '{print $1 "\t" $2 "\t" $4}' > Sample_gRNA_Q20_aligned_2mismatches1gap_uniquelymapped_
 readID_gRNA_instead_of_barcode
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 This file was then run through \verb|collapse_barcodes.py| as above and results were plotted as described in section \ref{subsec:Diagnostic_plot Counts vs reads}.
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 python collapse_barcodes.py Sample_gRNA_Q20_aligned_2mismatches1gap_
 uniquelymapped_readID_gRNA_instead_of_barcode 0
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 \section{Deriving gRNA counts from UMI-barcodes with naive PCR error correction}
 
 The script \verb|collapse_barcodes.py| was run using a maximum edit distance of 4. 
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 python collapse_barcodes.py Samplefilename 4
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 This means that before counting how many different barcodes are associated with each gRNA, the barcodes are collapsed into groups. Barcodes are first ranked in decreasing order based on the number of reads harbouring its sequence. The barcode with the most reads forms the first group. If the second-ranked barcode is within 4 edit-distances of this barcode it will be assumed to have originated by PCR error and will be added to the group. If the barcode differs from the group by greater than 4 edits, it will form its own group and so on. The number of groups per gRNA is the count after error correction. This reflects the number of original gRNA-barcode combinations.
 
 
-The script was run over all files with the extension \verb|_uniquelymapped_readID_gRNA_5bc_3bc_length14| as follows:
+The script was run over all files with the extension 
 
-\begin{lstlisting}
+\verb|_uniquelymapped_readID_gRNA_5bc_3bc_length14| as follows:
+
+\begin{small}\begin{lstlisting}
 for i in *length_14;
 do python collapse_barcodes.py "$i" 4;
 done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 
 \section{Bayesian PCR error correction of barcoded sequencing data }
@@ -259,13 +263,13 @@ A Bayesian error correction script was written by James E. Barrett to infer gRNA
 
 This Bayesian model takes as input the number of reads associated with each gRNA-UMI combination (without PCR error correction). I calculated these using the script make-csv-4Bayes.py. The script was run over all samples as follows:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in *length14; do python ../make_csv_4Bayes.py "$i"; done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 This script again takes the tab-separated three column file that lists (1) read ID, (2) gRNA (chr:start-end) and (3) barcode consisting of 5' UMI and 3' UMI fused together as input. The output is a csv file with three columns containing (1) gRNA (chr:start-end), (2) barcode consisting of 5' UMI and 3' UMI fused together and (3) number of reads associated with each barcode. The outputfile has the extension \verb|_barcode_readcounts.csv| and is  fed into a Bayesian error correction script described below.
 
-\subsection{Bayesian PCR error correction of barcoded sequencing count data script by James E. Barrett}
+\subsection{Bayesian PCR error correction of barcoded sequencing count data script (by James E. Barrett)}
 
 This script and documentation was kindly contributed by James E. Barrett. 
 
@@ -342,7 +346,7 @@ Q^* = \text{argmin}_Q \text{BIC}(Q).
 
 The analysis is  performed in R:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 library(reshape2)
 
 ### Load and prepare a data file
@@ -387,7 +391,7 @@ for(mu in 1:G){
       res[[mu]] <- fit_model(Y[[mu]], counts)
    }, error=function(e) NULL) #End tryCatch
 } # End loop over gRNAs
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 This analysis calls functions stored in the R scripts \verb|fit_model.R|, \verb|LL.R| and \verb|hamming.R|.
 A csv file of counts per gRNA for each sample can then be exported.
@@ -399,101 +403,83 @@ A csv file of counts per gRNA for each sample can then be exported.
 
 To calculate the number of reads per gRNA for each sample, I wrote the script \verb|reads_per_gRNA.py|. This takes a 3 column tab-separated inputfile with the following columns: (1) read ID (2) gRNA chr:start-stop (3) 14 nt barcode and outputs a csv file with two columns: (1) gRNA chr:start-stop , (2) number of reads. The script can be invoked as follows:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 for i in *length14; do python ./reads_per_gRNA.py "$i"; done
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 \subsection{Wrapping gRNA counts of all samples into a table}
 
 While the Bayesian model ouputs a csv file containing the counts per gRNA for each sample directly, the output of the script \verb|collapse-barcodes.py| (used to count gRNAs without error correction or to perform a naive PCR error correction) outputs one table per sample. This data can be merged into a single table listing for each gRNA the count in each sample using the script \verb|make_table_from_counts.py|. This script also adds information about which gene is targeted by each gRNA. The script takes a variable number of inputfiles to wrap into a table:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 python makeTable_from_counts.py INPUTFILE1 INPUTFILE2 ... INPUTFILEn
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 This was used to generate the tables \verb|Dataframe_allsamples_readcounts.txt|  \verb||  \verb|| 
 
 \subsection{Generating the plots of counts versus number of reads for each gRNA}
 
-The number of reads per gRNA were plotted against the counts per gRNA, derived either without error correction, with naive PCR error correction or Bayesian PCR error correction (as described above), using the script \verb|plot_counts_vs_number_of_reads.py|.
+The number of reads per gRNA were plotted against the counts per gRNA, derived either without error correction, with naive PCR error correction or Bayesian PCR error correction (as described above), using the script \verb|plot_counts_vs_number_of_reads.py|. Samplesheets can be found in the folder ``samplefiles"
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 python plot_counts_vs_number_of_reads.py [Dataframe-Counts] [Dataframe-NumberOfReads] [Samplesheet]
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 # no PCR error correction
-plot_counts_vs_number_of_reads.py ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_no_errors.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_readcounts.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/samplefile.txt
+plot_counts_vs_number_of_reads.py Dataframe_allsamples_no_errors.txt Dataframe_allsamples_readcounts.txt samplefile.txt
 
 # naive PCR error correction (4 mismatches)
-plot_counts_vs_number_of_reads.py ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_readcounts.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/samplefile.txt
+plot_counts_vs_number_of_reads.py Dataframe_allsamples.txt Dataframe_allsamples_readcounts.txt samplefile.txt
 
 # Bayesian error correction
-plot_counts_vs_number_of_reads.py ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/bayesian_correction_10Nov/bayesian_corrected.csv ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts/Dataframe_allsamples_readcounts.txt ~/Documents/UCL/HiSeqRun_Sept2015/gRNA_counts_bayesian_correction/samplefile.txt
-\end{lstlisting}
+plot_counts_vs_number_of_reads.py bayesian_corrected.csv Dataframe_allsamples_readcounts.txt samplefile.txt
+\end{lstlisting}\end{small}
 
 \section{Diagnostic plot: Counts versus number of sorted cells}
 
-This script accepts three user-arguments, a dataframe of gRNA counts (c), a dataframe of numbers of sorted cells per sample (n), and a samplesheet (s) and returns a scatterplot of sorted cells versus counts with one data point per sample in the samplesheet.
+This script accepts three user-supplied arguments, a dataframe of gRNA counts (c), a dataframe of numbers of sorted cells per sample (n), and a samplesheet (s) and returns a scatterplot of sorted cells versus counts with one data point per sample in the samplesheet. It is further hardcoded to color the dots according to whether 2 or 3 inital cycles of barcoding PCR were used to attach unique molecular identifiers to gRNA sequences before amplification and sequencing. The samplesheets can be found in the folder \verb|samplefiles| and the file recording the number of sorted cells is in the folder \verb|additional-files|. The script was invoked as follows:
 
+\begin{small}\begin{lstlisting}
+python cellnumber_vs_counts.py -c bayesian_corrected.csv -n Number_of_sorted_cells.csv  -s samplefile_all.txt 
+\end{lstlisting}\end{small}
+
+This script was used to produce the graph in Figure 4.11 on page 134 of the PhD thesis.
 
 
 \section{Enrichment analysis using DESeq2}
 
+Enrichment analysis was carried out using the DESeq2 package \cite{Love:2014eo}.
+
 \subsection{Preparing Bayesian error correction output for DESeq2}
 
-DeSeq requires for each experiment a list of counts per gRNA.The data for each experiment were extracted from the Bayesian analysis output. gRNAs where 3/4 of the counts in a given experiment are 0 (or NA) are removed before enrichment analysis as follows:
+DeSeq2 requires a list of counts per gRNA for each experiment to be analysied. The data for each experiment were extracted from the Bayesian analysis output file \verb|bayesian_corrected.csv|. gRNAs  with a  lot of missing data where 3/4 of the counts in a given experiment are 0 (or NA) are removed before enrichment analysis using the script \verb|make_input_4_DESeq.py| The samplesheets can be found in the folder \verb|samplefiles|.
 
-\begin{lstlisting}
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import collections as coll
-import re
-import pylab
+\begin{small}\begin{lstlisting}
+python make_input_4_DESeq.py -i bayesian_corrected.csv -s Samplefile_Batch8.txt
+\end{lstlisting}\end{small}
 
-###Functions###
+Using the above example, the script outputs a file named \verb|Batch8_p300_counts.csv|.
+DESeq2 further requires a file containing experimental information, specifying for each sample whether it belongs to the treatment or control group. These files can be found in the folder \verb|additional_files/ColData_forDESeq2|.
 
-def remove_underscore_column_names(dataset):
-    dataset_renamed = dataset.rename(columns=lambda x: re.sub(r"_.*", "",x))
-    return dataset_renamed
-    
-def generate_samplefile(samplefilename):
-    samplefile =[]
-    with open(samplefilename) as infile:
-        for line in infile: #remove everything after the first underscoe and remove newline
-            samplefile.append(re.sub(r"_.*", "", str(line.rstrip("\n"))))
-    return samplefile
-    
-def remove_3quarters_NAs(dataframe):
-    df_with_NAs = dataframe.replace('0', np.nan)
-    thresh = int(len(df_with_NAs.columns)/4*3)
-    NA_removed =df_with_NAs.dropna(axis='index', thresh=thresh)
-    return NA_removed
-    
- def save_df_for_samplefile(samplefile, samplefilename): #this function calls all other functions
-    df_samplefile = df_bayes[samplefile]
-    df_samplefile = remove_3quarters_NAs(df_samplefile)
-    df_samplefile = df_samplefile.fillna(0)
-    df_samplefile.to_csv(str(samplefilename)+'_counts.csv')
+\subsection{Running DESeq2}
 
-###Script###
+This analysis was conducted using the script \verb|DESeq2_script.R|. An example of how this script is run over the example file for experiment \verb|Batch8_p300|  is shown below:
 
-df_bayes = pd.DataFrame.from_csv('path_2/bayesian_corrected_counts.csv', header=0, sep=',', index_col=0)
+\begin{small}\begin{lstlisting}
+./DESeq2_script.R -c path_to/DeSeq2/Inputfiles/Batch8_p300_counts.csv -e path_to/additional_files/ColData_forDESeq2/Batch8_DeSeq2_ColData
+\end{lstlisting}\end{small}
 
-samplefilename = 'path_2/samplefile.txt'
-samplefile =generate_samplefile(samplefilename)
+\subsection{Visualizing enrichment}
+Log2 Fold Change between samples and controls for each gRNA was calculated using DESeq2 as described above. Log2Fold Change values were extracted from the output of DESeq2 (filename is \verb|Batch8_p300_DESeq2_table.csv| for this particular example) and plotted along the chromosome for each gene in the library. To generate the plots I wrote the python script \verb|Plot_Log2FC_along_chr.py|. This script requires as input the additional files \verb|EMT5000_library_regions.bed|, and \verb|EMT5000_library_TSS.txt| in order to plot enrichment for each gRNA with respect to the transcriptional start site of the gene from the library. Both files can can be found in the folder \verb|additional_files|. The script can be invoked as follows:
 
-save_df_for_samplefile(samplefile, samplefilename)
-\end{lstlisting}
-
-
-\subsection{Visualising enrichment}
-
+\begin{small}\begin{lstlisting}
+python Plot_Log2FC_along_chr.py -c Batch8_p300_DESeq2_table.csv -l EMT5000_library_regions.bed -t EMT5000_library_TSS.txt
+\end{lstlisting}\end{small}
 
 \subsection{Correlation of Log2Fold enrichment scores from DESeq2 between experiments}
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 library ("DESeq2")
 
 experiment_info <- read.table("path2/ThisExperiment_DeSeq2_ColData.csv", sep=",", header=TRUE, blank.lines.skip = TRUE, row.names = "Sample.name")
@@ -508,11 +494,11 @@ dds_Batch5<-DESeq(dds_Batch5)
 res<-results(dds_Batch5)
 resOrdered <- res[order(res$padj),]
 resOrdered
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 
 
-
+\subsection{Identification of candidate gRNAs using ranking with desirability functions}
 
 
 

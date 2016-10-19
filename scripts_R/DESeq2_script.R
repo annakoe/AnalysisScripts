@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 ### Example Usage:
-### ./DESeq2_script.R -c ../DeSeq2/Inputfiles/BatchSS2608_Set7_counts.csv
+### ./DESeq2_script.R -c path_to/DeSeq2/Inputfiles/Batch8_p300_counts.csv -e path_to/additional_files/ColData_forDESeq2/Batch8_DeSeq2_ColData
 
 library("optparse")
 

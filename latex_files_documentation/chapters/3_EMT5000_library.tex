@@ -55,14 +55,14 @@ chrX & 56258091 & 56260688 &KLF8 \\
 
 The genomic regions listed in \textbf{table \ref{tab:EMT5000-targets}} where chosen as target sites for the design of gRNAs  and saved in the file \verb|EMT_genepromoter_comprehensive.gff|. All gRNAs falling into these regions were then found using the Bedtools \cite{Quinlan:2010km} intersect function on the file containing all gRNAs with an NGG PAM found in the genome (see section \ref{sec:GN20GG in genome} for how this file was generated).
 
+\begin{small}
 \begin{lstlisting}
-intersectBed -a GN20GG_masked_autoXY.gff -b EMT_genepromoter_comprehensive.gff
--f 1 -wa -wb > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.gff
-\end{lstlisting}
+intersectBed -a GN20GG_masked_autoXY.gff -b EMT_genepromoter_comprehensive.gff -f 1 -wa -wb > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.gff
+\end{lstlisting}\end{small}
 
 Guide RNAs were then aligned to the genome in order to identify those that map uniquely. Before alignment, files had to be converted into the correct format as follows:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 ##for alignment need to first convert file into fasta format
 ##separate + and - strand
 cut -f 1,2,3,4 GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.gff | grep '+' | awk '{print "chr" $1 ":" ($2-1) "-" $3}' > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_PLUS.2bit;
@@ -81,11 +81,11 @@ python reverse_complement_fasta.py GN20GG_masked_autoXY_EMT_genepromoter_compreh
 
 ##combine the files for the + and - strand
 cat GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_PLUS.fa GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_MINUS_RC.fa > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.fa;
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 The PAM sequence was removed using \verb|trimming.py| and alignment to the genome without the PAM (i.e. as GN19 instead of GN20GG).
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 bwa aln -n 0 -o 0 -l 10 -N -I ~/path_to/GRCh37/human_GRCh37.tmp
 GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.fa >
 GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.sai;
@@ -95,14 +95,16 @@ GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.sai
 GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.fa > 
 GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_noPAM.sam;
 
-samtools view -S -q1  GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM.sam | cut -f  1 | awk -F ':' '{print $1 "\t" $2}' | awk -F '-' '{print $1 "\t" $2 "\t" $3}' | sortBed | uniq > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique.bed
-\end{lstlisting}
+samtools view -S -q1  GN20GG_masked_autoXY_EMT_genepromoter_
+comprehensive_complete_noPAM.sam | cut -f  1 | awk -F ':' '{print $1 "\t" $2}' | awk -F '-' '{print $1 "\t" $2 "\t" $3}' | sortBed | uniq > GN20GG_masked_autoXY_EMT_
+genepromoter_comprehensive_complete_noPAM_unique.bed
+\end{lstlisting}\end{small}
 
 This file contains 5086 sequences, i.e. 5086 gRNA sequences of the form GN19 that align uniquely to the genome and are followed by an NGG PAM and are found in the regions of interest.
 
 For cloning into the gRNA vector pgRNA-pLKO.1 (see Methods) by Gibson cloning, vector-derived sequences were attached to either end of the gRNA sequence. To this end the FASTA files for the final set of 5086 unique gRNAs were retrieved and sequences appended as follow:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 #split according to + and - strand 
 
 grep '+' GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_ noPAM_unique_strand.bed | awk '{print $1 ":" $2 "-" $3}' > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_ noPAM_unique_strand_PLUS.2bit
@@ -125,10 +127,13 @@ noPAM_unique_strand_PLUS.fa GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_
 noPAM_unique_strand_MINUS_RC.fa > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_
 noPAM_unique_strand.fa
 
-# use trimming.py to remove PAM (because coordinates extracted from SAM file contained PAM, while alignment was run without PAM) and paste the vector sequences for Gibson cloning on either side of the gRNA sequence
+# use trimming.py to remove PAM (because coordinates extracted 
+# from SAM file contained PAM, while alignment was run without 
+# PAM) and paste the vector sequences for Gibson cloning on 
+# either side of the gRNA sequence
 
 sed 'n; s/$/GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCT/' GN20GG_masked_autoXY_EMT_genepromoter_ comprehensive_complete_noPAM_unique.fa | sed 'n; s/^/TCTTGTGGAAAGGACGAAACACC/g' | paste - - | awk '{print $2 "\t" $1}' > EMT_guides_Custom_Array.txt
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 A pool of sequences of the form 5'-TCTTGTGGAAAGGACGAAACACC-GN19-GTTTTAGAGCT AGAAATAGCAAGTTAAAATAAGGCT-3', where GN19 donates the 5086 different guide sequences was then ordered from Custom Array Inc. 
 

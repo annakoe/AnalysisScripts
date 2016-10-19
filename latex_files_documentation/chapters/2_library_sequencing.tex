@@ -4,15 +4,15 @@ Addition of sequencing adapters was non-directional, which means the reads conta
 
 First, the gRNAs that were sequenced in the forward direction were extracted using cutadapt \cite{Martin:2011va} to trim away the plasmid sequence (shown here for the fastq sequencing data file generated from the Random N19 library).
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 cutadapt -g AAGTATTTCGATTTCTTGGCTTTATATATCTTGTGGAAAGGACGAAACACC -O 41 -m 2 --untrimmed-output=Untrimmed255_R1_50F.fastq.gz -o 255-N19_R1_F50_trimmed.fastq.gz ../255-N19_S5_L001_R1_001.fastq.gz;
 
 cutadapt -a GTTTTAGAGCTAGAAATAGCAAGTTAAAATAAGGCTAGTCCG -O 33 -m 2 --untrimmed-output=Untrimmed255_R1_19R.fastq.gz -o 255-N19_R1_F50+19R_trimmed.fastq.gz 255-N19_R1_F50_trimmed.fastq.gz;
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 Next, the reads stored in the untrimmed output, which will contain reads of the cassette sequenced in the reverse direction were concatenated, sorted and gRNA sequences extracted as follows (again showing example of reads from the N19 Random library):
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 cat Untrimmed255_R1_50F.fastq.gz Untrimmed255_R1_19R.fastq.gz > Untrimmed255_R1_50F+19R.fastq.gz;
 
 zcat Untrimmed255_R1_50F+19R.fastq.gz | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > Untrimmed255_R1_50F+19R_sorted.fastq;
@@ -20,11 +20,11 @@ zcat Untrimmed255_R1_50F+19R.fastq.gz | paste - - - - | sort -k1,1 -t " " | tr "
 cutadapt -a GGTGTTTCGTCCTTTCCACAAGATATATAAAGCCAAGAAATCGAAATACTT -O 41 -m 2 --untrimmed-output=Untrimmed255_50FRC.fastq.gz -o 255_R1_50FRC_trimmed.fastq.gz Untrimmed255_R1_50F+19R_sorted.fastq;
 
 cutadapt -g CGGACTAGCCTTATTTTAACTTGCTATTTCTAGCTCTAAAAC -O 33 -m 2 --untrimmed-output=Untrimmed255_19RRC.fastq.gz -o 255_R1_50FRC+19RRC_trimmed.fastq.gz 255_R1_50FRC_trimmed.fastq.gz;
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 This results in extraction of gRNA sequences sequenced in the reverse direction.
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 ### Double untrimmed reads:
 cat Untrimmed255_50FRC.fastq.gz Untrimmed255_19RRC.fastq.gz > Untrimmed255_50FRC+19RRC.fastq.gz;
 
@@ -44,23 +44,23 @@ zcat 255_R1_50FRC+19RRC_trimmed.fastq.gz | fastx_reverse_complement -Q33 -z > 25
 cat 255-N19_R1_F50+19R_trimmed.fastq.gz 255_R1_50FRC+19RRC_trimmed_onedirection.fastq.gz > 255_R1_4waytrimmed_onedirection.fastq.gz;
 
 zcat 255_R1_4waytrimmed_onedirection.fastq.gz | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > 255_R1_4waytrimmed_sorted_onedirection.fastq;
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 
 Next, read length distribution between 15 and 40 bp were plotted for each of the libraries (again shown here for the file containing reads from the N19 Random library):
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 awk '{y= i++ % 4 ; L[y]=$0; if(y==3 && length(L[1])<=40) {printf("%s\n%s\n%s\n%s\n",L[0],L[1],L[2],L[3]);}}' 255_R1_4waytrimmed_sorted.fastq > 255_R1_4waytrimmed_sorted_smaller40.fastq;
 
 awk '{if(NR%4==2) print}' 255_R1_4waytrimmed_sorted_smaller40.fastq | awk '{print length($1)}' | sort -n >  255_R1_4waytrimmed_sorted_smaller40_lengths;
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 
 Per base sequence quality after trimming was assessed using FASTQC \cite{FASTQC:Online}
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 fastqc 255_R1_4waytrimmed_sorted_smaller40.fastq  --outdir=../FASTQC_Trimmedreads
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 
 \section{Histogram of gRNA lengths}
@@ -68,19 +68,19 @@ fastqc 255_R1_4waytrimmed_sorted_smaller40.fastq  --outdir=../FASTQC_Trimmedread
 This code was used to generate the plots in Figure 3.12 on page 100 of the PhD thesis.
 Histograms of read lengths were generated in R:
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 reads<-read.table("255_R1_4waytrimmed_sorted_smaller40_lengths", header=F)
 
 par(mar=c(5,6+2,4,2)+1)
 hist(reads[,1], breaks=seq(0,40,by=1), col="grey", main="Method 1 - Random N19", xlab="Insert length (bp)", ylim=c(0, 500000), las=1, ylab="", cex.main=1.3, cex.axis=1.3, cex.lab=1.3)
 title(ylab = "Frequency", line = 6, cex.lab=1.3)
-\end{lstlisting} 
+\end{lstlisting}\end{small} 
  
  \section{Histogram of read frequencies}
  
  This code was used to generate the plots in Figure 3.11 on page 99 of the PhD thesis.
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 awk '{if(NR%4==2) print}' 255_R1_4waytrimmed_sorted_onedirection_smaller40.fastq | sort | uniq -c | sort | sed 's/^ *//' > 255_R1_4waytrimmed_sorted_onedirection_smaller40_sortedbyfrequency;
 
 #Histograms of read frequency were generated in R:
@@ -96,26 +96,26 @@ title(ylab = "Read counts", line = 4, cex.lab=1.9)
 par(fig=c(0.1,1,0.45,1), new=TRUE)
 plot(rownames(reads_upto5), reads_upto5$counts, type="l", main="Method 3 - Mouse", xlab="", xlim= c(0, 600000), ylim=c(0,5), ylab="", lwd=8, col="orange", las=1, cex.axis=1.7, cex.lab=1.9, cex.main=1.9)
 title(ylab = "Read counts", line = 4, cex.lab=1.9)
-\end{lstlisting}
+\end{lstlisting}\end{small}
 
 \section{Alignment to the reference genome}
  
  Trimmed reads were aligned to the reference genome, either human (GRCh37/hg19) or mouse (NCBI37/mm9) as appropriate, using BWA \cite{Li:2009fi}, again shown using the file containing reads from the N19 Random library as an example.
  
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 #use bwa to align reads to human genome without allowing mismatches and printing all alignments, seed length is set to 19
 
 bwa aln -n 0 -o 0 -l 19 -N /mnt/store2/local_data/genomic_data/human/GRCh37/human_GRCh37.tmp 255_R1_4waytrimmed_sorted.fastq > 255_R1_4waytrimmed.sai
 
 #generate the sam file
 bwa samse -n 10000 /path2/human_GRCh37.tmp 255_R1_4waytrimmed.sai 255_R1_4waytrimmed_sorted.fastq > 255_R1_4waytrimmed.sam
- \end{lstlisting}
+ \end{lstlisting}\end{small}
 
 Uniquely mapped reads were counted using Samtools \cite{Li:2009kaa}.
 
-\begin{lstlisting}
+\begin{small}\begin{lstlisting}
 samtools view -S -q1 255_R1_4waytrimmed.sam | wc -l
-\end{lstlisting}
+\end{lstlisting}\end{small}
  
 The remainder of the analysis (parts of which are shown in Fig. 3.18 on page 111 of the thesis) was conducted by my collaborator Karolina Worf at the Helmholtz Institute in Munich. The documentation for this analysis is available at hgmubox (\url{https://hmgubox.helmholtz-muenchen.de:8001/d/6c6e75236e/}; password: Coralina). 
 
