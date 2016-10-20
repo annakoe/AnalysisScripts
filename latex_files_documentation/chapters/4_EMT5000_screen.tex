@@ -436,6 +436,8 @@ plot_counts_vs_number_of_reads.py Dataframe_allsamples.txt Dataframe_allsamples_
 plot_counts_vs_number_of_reads.py bayesian_corrected.csv Dataframe_allsamples_readcounts.txt samplefile.txt
 \end{lstlisting}\end{small}
 
+This script was used to generate the plots in Figure 4.9 and Figure 4.10 of the PhD thesis. 
+
 \section{Diagnostic plot: Counts versus number of sorted cells}
 
 This script accepts three user-supplied arguments, a dataframe of gRNA counts (c), a dataframe of numbers of sorted cells per sample (n), and a samplesheet (s) and returns a scatterplot of sorted cells versus counts with one data point per sample in the samplesheet. It is further hardcoded to color the dots according to whether 2 or 3 inital cycles of barcoding PCR were used to attach unique molecular identifiers to gRNA sequences before amplification and sequencing. The samplesheets can be found in the folder \verb|samplefiles| and the file recording the number of sorted cells is in the folder \verb|additional-files|. The script was invoked as follows:
@@ -477,28 +479,39 @@ Log2 Fold Change between samples and controls for each gRNA was calculated using
 python Plot_Log2FC_along_chr.py -c Batch8_p300_DESeq2_table.csv -l EMT5000_library_regions.bed -t EMT5000_library_TSS.txt
 \end{lstlisting}\end{small}
 
+This script was used to generate the plots in Figure 4.12 on page 136 of the PhD thesis.
+
 \subsection{Correlation of Log2Fold enrichment scores from DESeq2 between experiments}
 
+The script \verb|plot_LogFC_vs_LogFC.py| performs all-by-all comparison of Log2Fold Change per gRNA across an arbitrary number of inputfiles. The script can be invoked as follows:
+
 \begin{small}\begin{lstlisting}
-library ("DESeq2")
-
-experiment_info <- read.table("path2/ThisExperiment_DeSeq2_ColData.csv", sep=",", header=TRUE, blank.lines.skip = TRUE, row.names = "Sample.name")
-counts<-read.table("path2/ThisExperiment_counts_bayes_new.csv", sep=",", header=TRUE, na.strings="NaN", check.names=FALSE, row.names=1)
-
-
-counts_Batch5[is.na(counts_Batch5)] <- 0  #replace NAs with 0
-dds_Batch5<- DESeqDataSetFromMatrix(countData=counts_Batch5, colData = experiment_info_Batch5, design = ~treatment)
-#converting counts to integer mode
-dds_Batch5<-DESeq(dds_Batch5)
-
-res<-results(dds_Batch5)
-resOrdered <- res[order(res$padj),]
-resOrdered
+python plot_LogFC_vs_LogFC.py  [list of DESeq output dataframes to be compared]
 \end{lstlisting}\end{small}
 
-
+This script was used to generate the plots in Figure 4.13 on page 138 of the PhD thesis.
 
 \subsection{Identification of candidate gRNAs using ranking with desirability functions}
 
+The Log2Fold Change and Log2Fold Change standard error were extracted from the DESeq2 output in python as follows:
 
+
+All pvalues that were ouput as NA had to be set to 0.
+
+
+The script \verb|Desirability.R| was used to rank gRNAs based on large postive Log2FC and small Log2FC standard error.
+
+
+
+
+
+The top 10 candidates were extracted from the list of gRNAs ranked by their Desirability score. The sequences were extracted for cloning into the gRNA vector for validation experiments.
+
+\begin{small}\begin{lstlisting}
+head -11 p300_candidates.csv | sed 1d | awk -F '",' '{print $1}' | awk -F '"' '{print $2}' > p300_top10.bed
+
+grep -A1 -wf p300_top10.bed /path2/GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique_strand_PAMremoved.fa > p300_top10.fa
+\end{lstlisting}\end{small}
+
+For each candidate gRNA the Bayesian-corrected counts in samples and controls were plotted using the custom script \verb|Plot_candidates.R|
 
