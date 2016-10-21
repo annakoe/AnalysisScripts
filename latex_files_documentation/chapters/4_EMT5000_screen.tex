@@ -178,7 +178,7 @@ done
 This yields a file containing for each uniquely mapped read its readID, the gRNA it mapped to (chr:start-stop) and the UMI found in the read (of length exactly 14 bp).
 
 
-\section{Deriving gRNA counts from UMI-barcodes without PCR error correction}
+\section[Deriving gRNA counts from UMI-barcodes without PCR error correction]{Deriving gRNA counts from UMI-barcodes \\without PCR error correction}
 
 The gRNA counts were derived by counting the number of times each gRNA occurs together with each barcode, which acts as a unique molecular identifier (UMI). To do the gRNA counting without any error correction, the script \verb|collapse_barcodes.py| was run using a maximum edit distance of 0, i.e. not correcting any PCR errors that might have occurred in the barcode. This script can be invoked as follows:
 
@@ -270,6 +270,7 @@ for i in *length14; do python ../make_csv_4Bayes.py "$i"; done
 This script again takes the tab-separated three column file that lists (1) read ID, (2) gRNA (chr:start-end) and (3) barcode consisting of 5' UMI and 3' UMI fused together as input. The output is a csv file with three columns containing (1) gRNA (chr:start-end), (2) barcode consisting of 5' UMI and 3' UMI fused together and (3) number of reads associated with each barcode. The outputfile has the extension \verb|_barcode_readcounts.csv| and is  fed into a Bayesian error correction script described below.
 
 \subsection{Bayesian PCR error correction of barcoded sequencing count data script (by James E. Barrett)}
+\label{sec:Bayesian-methods}
 
 This script and documentation was kindly contributed by James E. Barrett. 
 
@@ -394,7 +395,7 @@ for(mu in 1:G){
 \end{lstlisting}\end{small}
 
 This analysis calls functions stored in the R scripts \verb|fit_model.R|, \verb|LL.R| and \verb|hamming.R|.
-A csv file of counts per gRNA for each sample can then be exported.
+A csv file of counts per gRNA for each sample (\verb|bayesian_corrected.csv|) was then exported.
 
 \section{Diagnostic plot: Number of UMI-corrected counts versus number of reads per gRNA}
 \label{subsec:Diagnostic_plot Counts vs reads}
@@ -455,25 +456,25 @@ Enrichment analysis was carried out using the DESeq2 package \cite{Love:2014eo}.
 
 \subsection{Preparing Bayesian error correction output for DESeq2}
 
-DeSeq2 requires a list of counts per gRNA for each experiment to be analysied. The data for each experiment were extracted from the Bayesian analysis output file \verb|bayesian_corrected.csv|. gRNAs  with a  lot of missing data where 3/4 of the counts in a given experiment are 0 (or NA) are removed before enrichment analysis using the script \verb|make_input_4_DESeq.py| The samplesheets can be found in the folder \verb|samplefiles|.
+DESeq2 requires a list of counts per gRNA for each experiment to be analysed. The data for each experiment were extracted from the Bayesian analysis output file \verb|bayesian_corrected.csv|. gRNAs  with a  lot of missing data where 3/4 of the counts in a given experiment are 0 (or NA) are removed before enrichment analysis using the script \verb|make_input_4_DESeq.py| The samplesheets can be found in the folder \verb|samplefiles|. 
 
 \begin{small}\begin{lstlisting}
 python make_input_4_DESeq.py -i bayesian_corrected.csv -s Samplefile_Batch8.txt
 \end{lstlisting}\end{small}
 
 Using the above example, the script outputs a file named \verb|Batch8_p300_counts.csv|.
-DESeq2 further requires a file containing experimental information, specifying for each sample whether it belongs to the treatment or control group. These files can be found in the folder \verb|additional_files/ColData_forDESeq2|.
 
 \subsection{Running DESeq2}
-
-This analysis was conducted using the script \verb|DESeq2_script.R|. An example of how this script is run over the example file for experiment \verb|Batch8_p300|  is shown below:
+This analysis was conducted using the script \verb|DESeq2_script.R|. An example of how this script is run over the example file for experiment \verb|Batch8_p300|  is shown below. DESeq2 further requires a file containing experimental information, specifying for each sample whether it belongs to the treatment or control group. These files can be found in the folder \verb|additional_files/ColData_forDESeq2|.
 
 \begin{small}\begin{lstlisting}
-./DESeq2_script.R -c path_to/DeSeq2/Inputfiles/Batch8_p300_counts.csv -e path_to/additional_files/ColData_forDESeq2/Batch8_DeSeq2_ColData
+./DESeq2_script.R -c path_to/DeSeq2/Inputfiles/Batch8_p300_counts.csv -e path_to/additional_files/ColData_forDESeq2/Batch8_DeSeq2_ColData -o 'Batch8_p300_DESeq2_table.csv'
 \end{lstlisting}\end{small}
 
+This outputs a csv file with the samplename and the extension \verb|_DESeq2_table.csv|.
+
 \subsection{Visualizing enrichment}
-Log2 Fold Change between samples and controls for each gRNA was calculated using DESeq2 as described above. Log2Fold Change values were extracted from the output of DESeq2 (filename is \verb|Batch8_p300_DESeq2_table.csv| for this particular example) and plotted along the chromosome for each gene in the library. To generate the plots I wrote the python script \verb|Plot_Log2FC_along_chr.py|. This script requires as input the additional files \verb|EMT5000_library_regions.bed|, and \verb|EMT5000_library_TSS.txt| in order to plot enrichment for each gRNA with respect to the transcriptional start site of the gene from the library. Both files can can be found in the folder \verb|additional_files|. The script can be invoked as follows:
+Log2 Fold Change between samples and controls for each gRNA was calculated using DESeq2 as described above. Log2Fold Change values were extracted from the output of DESeq2 (filename is \verb|Batch8_p300_DESeq2_table.csv| for this particular example) and plotted along the chromosome for each gene in the library. To extract the relevant data and generate the plots I wrote the python script \verb|Plot_Log2FC_along_chr.py|. This script requires as input the additional files \verb|EMT5000_library_regions.bed|, and \verb|EMT5000_library_TSS.txt| in order to plot enrichment for each gRNA with respect to the transcriptional start site of the gene from the library. Both files can can be found in the folder \verb|additional_files|. The script can be invoked as follows:
 
 \begin{small}\begin{lstlisting}
 python Plot_Log2FC_along_chr.py -c Batch8_p300_DESeq2_table.csv -l EMT5000_library_regions.bed -t EMT5000_library_TSS.txt
@@ -492,26 +493,97 @@ python plot_LogFC_vs_LogFC.py  [list of DESeq output dataframes to be compared]
 This script was used to generate the plots in Figure 4.13 on page 138 of the PhD thesis.
 
 \subsection{Identification of candidate gRNAs using ranking with desirability functions}
+\label{sec:ranking-methods}
+The Log2Fold Change and Log2Fold Change standard error were extracted from the DESeq2 output in python (using ipython notebook interactively) as follows:
 
-The Log2Fold Change and Log2Fold Change standard error were extracted from the DESeq2 output in python as follows:
+\begin{small}\begin{lstlisting}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import collections as coll
+import re
+import pylab
+import pybedtools
+%gui 
+%matplotlib inline
 
+def load_into_df(arg):
+    user_input = pd.DataFrame.from_csv(arg, header=0, sep=',', index_col=0)
+    return user_input
 
-All pvalues that were ouput as NA had to be set to 0.
+def set_DESEq2_outliers_to_0_and_wrap_into_df(list_of_dfs, names_of_dfs):
+    dict_for_df = {} 
+    for index, df in enumerate(list_of_dfs): #iterate over the dataframes
+        outliers = df.loc[np.isnan(df['pvalue'])] #make a dataframe 'outliers' that holds all rows where pvalue is NA, i.e DESeq2 has detected an outlier
+        outliers['log2FoldChange']=0 #if pvalue is NA set L2FC to 0
+        outliers_removed = df.loc[~np.isnan(df['pvalue'])] #make new df only containing rows where pvalue is NOT NaN
+        df_combined = pd.concat([outliers, outliers_removed])   #combine the two dataframes
+        dict_for_df[names_of_dfs[index] + '_log2FoldChange'] = (df_combined["log2FoldChange"])
+        dict_for_df[names_of_dfs[index] + '_LfcSE'] = (df_combined["lfcSE"]) #add the columns holding L2FC of this dataframe to a dict
+    my_df=pd.DataFrame(dict_for_df) #take entries from a list into a df
+    return my_df
 
+Batch8_p300 = load_into_df('path2/DESeq2_output_tables/Batch8_p300_DESeq2_table.csv')
+Batch4_p300 = load_into_df('path2//DESeq2_output_tables/Batch4_p300_DESeq2_table.csv')
+BatchSS0209_p300 = load_into_df('path2/DESeq2_output_tables/BatchSS0209_p300_DESeq2_table.csv')
+BatchSS2608_p300 = load_into_df('path2/DESeq2_output_tables/BatchSS2608_p300_DESeq2_table.csv')
+BatchSS0209_Set7 = load_into_df('path2/DESeq2_output_tables/BatchSS0209_Set7_DESeq2_table.csv')
+BatchSS2608_Set7 = load_into_df('path2/DESeq2_output_tables/BatchSS2608_Set7_DESeq2_table.csv')
+Batch5_Set7 = load_into_df('path2/DESeq2_output_tables/Batch5_Set7_DESeq2_table.csv')
+Batch3_Set7 = load_into_df('path2/DESeq2_output_tables/Batch3_Set7_DESeq2_table.csv')
 
-The script \verb|Desirability.R| was used to rank gRNAs based on large postive Log2FC and small Log2FC standard error.
+list_p300= [Batch8_p300, Batch4_p300, BatchSS0209_p300, BatchSS2608_p300]
+names_p300 = ['Batch8_p300', 'Batch4_p300', 'BatchSS0209_p300', 'BatchSS2608_p300']
 
+list_Set7 = [Batch3_Set7, Batch5_Set7, BatchSS0209_Set7, BatchSS2608_Set7]
+names_Set7 = ['Batch3_Set7', 'Batch5_Set7', 'BatchSS0209_Set7', 'BatchSS2608_Set7']
 
+p300s_L2FC = set_DESEq2_outliers_to_0_and_wrap_into_df(list_p300, names_p300)
+p300s_L2FC.to_csv('p300s_DESeq_L2FC_NApvalue2zero.csv', sep=',')
 
+Set7_L2FC = set_DESEq2_outliers_to_0_and_wrap_into_df(list_Set7, names_Set7)
+Set7_L2FC.to_csv('Set7s_DESeq_L2FC_NApvalue2zero.csv', sep=',')
+\end{lstlisting}\end{small}
 
+For each gRNA where DESeq2 had detected outliers (and set the p-value to NA in the output) Log2Fold Change values were set to 0 before the next step, i.e. ranking of gRNAs.
 
-The top 10 candidates were extracted from the list of gRNAs ranked by their Desirability score. The sequences were extracted for cloning into the gRNA vector for validation experiments.
+The script \verb|Desirability.R| was used to rank gRNAs based on large postive Log2FC and small Log2FC standard error. A weighted average is calculated and Log2FC is given four times the weight of its standard error during this ranking:
+
+\begin{small}\begin{lstlisting}
+./Desirability.R -f p300s_DESeq_L2FC_NApvalue2zero.csv -w 4 -e 1
+\end{lstlisting}\end{small}
+
+The script outputs a ranked list of randidate gRNAs, ranked based on the calculated overall desirability  (here \verb|p300_candidates_4xL2FC_1xLfcSE.csv| as well as plots showing Desirabilities across all gRNAs as well as histograms for Log2Fold Changes and associated standard errors. These are shown in Figure 4.14 on page 139 of the PhD thesis.
+
+The top 10 candidates were extracted from the list of gRNAs ranked by their Desirability score for use in the validation experiments. The sequences were extracted for cloning into the gRNA vector as follows:
 
 \begin{small}\begin{lstlisting}
 head -11 p300_candidates.csv | sed 1d | awk -F '",' '{print $1}' | awk -F '"' '{print $2}' > p300_top10.bed
 
-grep -A1 -wf p300_top10.bed /path2/GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_noPAM_unique_strand_PAMremoved.fa > p300_top10.fa
+grep -A1 -wf p300_top10.bed /path2/GN20GG_masked_autoXY_EMT_genepromoter_comprehensive_complete_
+noPAM_unique_strand_PAMremoved.fa > p300_top10.fa
 \end{lstlisting}\end{small}
 
-For each candidate gRNA the Bayesian-corrected counts in samples and controls were plotted using the custom script \verb|Plot_candidates.R|
 
+For the candidate gRNAs the Bayesian-corrected counts in samples and controls were plotted using the custom script \verb|Plot_candidates.R|. For this, the counts for each gRNA for all samples from a given experiment were first extracted from the output of the Bayesian error correction script (see section \ref{sec:Bayesian-methods}) using the script 
+\verb|extract_all_counts_per_experiment_from_bayes.py|, which was invoked as follows:
+
+\begin{small}\begin{lstlisting}
+python extract_all_counts_per_experiment_from_bayes.py
+\end{lstlisting}\end{small}
+
+This produces, for each experiment a file with extension \verb|_all-counts.csv|. This file was edited to replace all occurrences of NA with 0 using the script \newline
+\verb|Print_counts_missing_as_0.R|. The file containing the output of the Bayesian error correction script for all experiments using the dCas9-p300 chromatin modifier is shown as an example: 
+
+\begin{small}\begin{lstlisting}
+./Print_counts_missing_as_0.R -f All_p300_all-counts.csv
+\end{lstlisting}\end{small}
+
+For this particular example, this script outputs a file named \newline
+\verb|All_p300_all-counts_missing_as_0.csv|, which contains for all experiments using the dCas9-p300 chromatin modifier the counts per gRNA following Bayesian error correction for all samples and controls with NAs replaced by 0. This file together with the ranked list of candidates (from section \ref{sec:ranking-methods}) was fed to the script \verb|Print_counts_missing_as_0.R| as follows:
+
+\begin{small}\begin{lstlisting}
+./Plot_candidates.R -f p300_candidates_4xL2FC_1xLfcSE.csv -c All_p300_all-counts_missing_as_0.csv
+\end{lstlisting}\end{small}
+
+This produced the plots in Figure 4.15 and 4.16 on page 140 and 141 of the PhD thesis.

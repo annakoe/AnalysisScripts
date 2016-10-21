@@ -11,6 +11,9 @@
 \contentsline {section}{\numberline {2.4}Alignment to the reference genome}{17}{section.2.4}
 \contentsline {chapter}{\numberline {3}Design of the EMT5000 library}{19}{chapter.3}
 \contentsline {section}{\numberline {3.1}Defining regions of interest}{20}{section.3.1}
+\contentsline {section}{\numberline {3.2}Identifying all gRNAs that fall into regions of interest}{22}{section.3.2}
+\contentsline {section}{\numberline {3.3}Subsetting only gRNAs that map uniquely to the human genome}{22}{section.3.3}
+\contentsline {section}{\numberline {3.4}Addition of plasmid sequencs for use in Gibson cloning}{24}{section.3.4}
 \contentsline {chapter}{\numberline {4}Data analysis: Screens with the EMT5000 library and stable cell lines expressing the dCas9-SET7 or dCas9-p300 chromatin modifier}{27}{chapter.4}
 \contentsline {section}{\numberline {4.1}Read trimming and Quality Filtering}{28}{section.4.1}
 \contentsline {section}{\numberline {4.2}Alignment to the EMT5000 library}{30}{section.4.2}
@@ -28,9 +31,9 @@
 \contentsline {subsection}{\numberline {4.7.2}Wrapping gRNA counts of all samples into a table}{43}{subsection.4.7.2}
 \contentsline {subsection}{\numberline {4.7.3}Generating the plots of counts versus number of reads for each gRNA}{43}{subsection.4.7.3}
 \contentsline {section}{\numberline {4.8}Diagnostic plot: Counts versus number of sorted cells}{44}{section.4.8}
-\contentsline {section}{\numberline {4.9}Enrichment analysis using DESeq2}{44}{section.4.9}
+\contentsline {section}{\numberline {4.9}Enrichment analysis using DESeq2}{45}{section.4.9}
 \contentsline {subsection}{\numberline {4.9.1}Preparing Bayesian error correction output for DESeq2}{45}{subsection.4.9.1}
 \contentsline {subsection}{\numberline {4.9.2}Running DESeq2}{45}{subsection.4.9.2}
-\contentsline {subsection}{\numberline {4.9.3}Visualizing enrichment}{45}{subsection.4.9.3}
+\contentsline {subsection}{\numberline {4.9.3}Visualizing enrichment}{46}{subsection.4.9.3}
 \contentsline {subsection}{\numberline {4.9.4}Correlation of Log2Fold enrichment scores from DESeq2 between experiments}{46}{subsection.4.9.4}
 \contentsline {subsection}{\numberline {4.9.5}Identification of candidate gRNAs using ranking with desirability functions}{47}{subsection.4.9.5}

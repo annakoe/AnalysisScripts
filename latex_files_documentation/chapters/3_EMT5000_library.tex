@@ -52,7 +52,7 @@ chrX & 56258091 & 56260688 &KLF8 \\
 \end{center}
 \end{table}
 
-
+\section{Identifying all gRNAs that fall into regions of interest}
 The genomic regions listed in \textbf{table \ref{tab:EMT5000-targets}} where chosen as target sites for the design of gRNAs  and saved in the file \verb|EMT_genepromoter_comprehensive.gff|. All gRNAs falling into these regions were then found using the Bedtools \cite{Quinlan:2010km} intersect function on the file containing all gRNAs with an NGG PAM found in the genome (see section \ref{sec:GN20GG in genome} for how this file was generated).
 
 \begin{small}
@@ -60,6 +60,8 @@ The genomic regions listed in \textbf{table \ref{tab:EMT5000-targets}} where cho
 intersectBed -a GN20GG_masked_autoXY.gff -b EMT_genepromoter_comprehensive.gff -f 1 -wa -wb > GN20GG_masked_autoXY_EMT_genepromoter_comprehensive.gff
 \end{lstlisting}\end{small}
 
+\section{Subsetting only gRNAs that map uniquely to the human genome}
+\label{sec:EMTguides-bedfile}
 Guide RNAs were then aligned to the genome in order to identify those that map uniquely. Before alignment, files had to be converted into the correct format as follows:
 
 \begin{small}\begin{lstlisting}
@@ -102,6 +104,7 @@ genepromoter_comprehensive_complete_noPAM_unique.bed
 
 This file contains 5086 sequences, i.e. 5086 gRNA sequences of the form GN19 that align uniquely to the genome and are followed by an NGG PAM and are found in the regions of interest.
 
+\section{Addition of plasmid sequencs for use in Gibson cloning}
 For cloning into the gRNA vector pgRNA-pLKO.1 (see Methods) by Gibson cloning, vector-derived sequences were attached to either end of the gRNA sequence. To this end the FASTA files for the final set of 5086 unique gRNAs were retrieved and sequences appended as follow:
 
 \begin{small}\begin{lstlisting}

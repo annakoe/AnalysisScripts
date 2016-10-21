@@ -45,6 +45,12 @@ H~Li, B~Handsaker, A~Wysoker, T~Fennell, J~Ruan, N~Homer, G~Marth, G~Abecasis,
 \newblock {The Sequence Alignment/Map format and SAMtools}.
 \newblock {\em Bioinformatics}, 25(16):2078--2079, August 2009.
 
+\bibitem{Love:2014eo}
+Michael~I Love, Wolfgang Huber, and Simon Anders.
+\newblock {Moderated estimation of fold change and dispersion for RNA-seq data
+  with DESeq2}.
+\newblock {\em Genome Biology}, 15(12):550, 2014.
+
 \bibitem{Mali:2013ft}
 Prashant Mali, John Aach, P~Benjamin Stranges, Kevin~M Esvelt, Mark Moosburner,
   Sriram Kosuri, Luhan Yang, and George~M Church.

@@ -10,23 +10,26 @@
 \BOOKMARK [1][-]{section.2.4}{Alignment to the reference genome}{chapter.2}% 10
 \BOOKMARK [0][-]{chapter.3}{Design of the EMT5000 library}{}% 11
 \BOOKMARK [1][-]{section.3.1}{Defining regions of interest}{chapter.3}% 12
-\BOOKMARK [0][-]{chapter.4}{Data analysis: Screens with the EMT5000 library and stable cell lines expressing the dCas9-SET7 or dCas9-p300 chromatin modifier}{}% 13
-\BOOKMARK [1][-]{section.4.1}{Read trimming and Quality Filtering}{chapter.4}% 14
-\BOOKMARK [1][-]{section.4.2}{Alignment to the EMT5000 library}{chapter.4}% 15
-\BOOKMARK [1][-]{section.4.3}{Combining the gRNA and adapter sequences in a single file}{chapter.4}% 16
-\BOOKMARK [1][-]{section.4.4}{Deriving gRNA counts from UMI-barcodes without PCR error correction}{chapter.4}% 17
-\BOOKMARK [2][-]{subsection.4.4.1}{Assessing PCR error by plotting the number of reads per gRNA against number of different gRNA sequences}{section.4.4}% 18
-\BOOKMARK [1][-]{section.4.5}{Deriving gRNA counts from UMI-barcodes with naive PCR error correction}{chapter.4}% 19
-\BOOKMARK [1][-]{section.4.6}{Bayesian PCR error correction of barcoded sequencing data }{chapter.4}% 20
-\BOOKMARK [2][-]{subsection.4.6.1}{Bayesian PCR error correction of barcoded sequencing count data script \(by James E. Barrett\)}{section.4.6}% 21
-\BOOKMARK [1][-]{section.4.7}{Diagnostic plot: Number of UMI-corrected counts versus number of reads per gRNA}{chapter.4}% 22
-\BOOKMARK [2][-]{subsection.4.7.1}{Calculating the number of reads per gRNA}{section.4.7}% 23
-\BOOKMARK [2][-]{subsection.4.7.2}{Wrapping gRNA counts of all samples into a table}{section.4.7}% 24
-\BOOKMARK [2][-]{subsection.4.7.3}{Generating the plots of counts versus number of reads for each gRNA}{section.4.7}% 25
-\BOOKMARK [1][-]{section.4.8}{Diagnostic plot: Counts versus number of sorted cells}{chapter.4}% 26
-\BOOKMARK [1][-]{section.4.9}{Enrichment analysis using DESeq2}{chapter.4}% 27
-\BOOKMARK [2][-]{subsection.4.9.1}{Preparing Bayesian error correction output for DESeq2}{section.4.9}% 28
-\BOOKMARK [2][-]{subsection.4.9.2}{Running DESeq2}{section.4.9}% 29
-\BOOKMARK [2][-]{subsection.4.9.3}{Visualizing enrichment}{section.4.9}% 30
-\BOOKMARK [2][-]{subsection.4.9.4}{Correlation of Log2Fold enrichment scores from DESeq2 between experiments}{section.4.9}% 31
-\BOOKMARK [2][-]{subsection.4.9.5}{Identification of candidate gRNAs using ranking with desirability functions}{section.4.9}% 32
+\BOOKMARK [1][-]{section.3.2}{Identifying all gRNAs that fall into regions of interest}{chapter.3}% 13
+\BOOKMARK [1][-]{section.3.3}{Subsetting only gRNAs that map uniquely to the human genome}{chapter.3}% 14
+\BOOKMARK [1][-]{section.3.4}{Addition of plasmid sequencs for use in Gibson cloning}{chapter.3}% 15
+\BOOKMARK [0][-]{chapter.4}{Data analysis: Screens with the EMT5000 library and stable cell lines expressing the dCas9-SET7 or dCas9-p300 chromatin modifier}{}% 16
+\BOOKMARK [1][-]{section.4.1}{Read trimming and Quality Filtering}{chapter.4}% 17
+\BOOKMARK [1][-]{section.4.2}{Alignment to the EMT5000 library}{chapter.4}% 18
+\BOOKMARK [1][-]{section.4.3}{Combining the gRNA and adapter sequences in a single file}{chapter.4}% 19
+\BOOKMARK [1][-]{section.4.4}{Deriving gRNA counts from UMI-barcodes without PCR error correction}{chapter.4}% 20
+\BOOKMARK [2][-]{subsection.4.4.1}{Assessing PCR error by plotting the number of reads per gRNA against number of different gRNA sequences}{section.4.4}% 21
+\BOOKMARK [1][-]{section.4.5}{Deriving gRNA counts from UMI-barcodes with naive PCR error correction}{chapter.4}% 22
+\BOOKMARK [1][-]{section.4.6}{Bayesian PCR error correction of barcoded sequencing data }{chapter.4}% 23
+\BOOKMARK [2][-]{subsection.4.6.1}{Bayesian PCR error correction of barcoded sequencing count data script \(by James E. Barrett\)}{section.4.6}% 24
+\BOOKMARK [1][-]{section.4.7}{Diagnostic plot: Number of UMI-corrected counts versus number of reads per gRNA}{chapter.4}% 25
+\BOOKMARK [2][-]{subsection.4.7.1}{Calculating the number of reads per gRNA}{section.4.7}% 26
+\BOOKMARK [2][-]{subsection.4.7.2}{Wrapping gRNA counts of all samples into a table}{section.4.7}% 27
+\BOOKMARK [2][-]{subsection.4.7.3}{Generating the plots of counts versus number of reads for each gRNA}{section.4.7}% 28
+\BOOKMARK [1][-]{section.4.8}{Diagnostic plot: Counts versus number of sorted cells}{chapter.4}% 29
+\BOOKMARK [1][-]{section.4.9}{Enrichment analysis using DESeq2}{chapter.4}% 30
+\BOOKMARK [2][-]{subsection.4.9.1}{Preparing Bayesian error correction output for DESeq2}{section.4.9}% 31
+\BOOKMARK [2][-]{subsection.4.9.2}{Running DESeq2}{section.4.9}% 32
+\BOOKMARK [2][-]{subsection.4.9.3}{Visualizing enrichment}{section.4.9}% 33
+\BOOKMARK [2][-]{subsection.4.9.4}{Correlation of Log2Fold enrichment scores from DESeq2 between experiments}{section.4.9}% 34
+\BOOKMARK [2][-]{subsection.4.9.5}{Identification of candidate gRNAs using ranking with desirability functions}{section.4.9}% 35
