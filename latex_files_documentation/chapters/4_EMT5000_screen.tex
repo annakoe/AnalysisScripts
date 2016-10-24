@@ -111,7 +111,7 @@ complete_noPAM_unique_strand_PAMremoved.fa "$i" "${i%Q20_aligned_2mismatches1gap
 done
 \end{lstlisting}\end{small}
 
-Following alignment allowing 2 mismaches and 1 gap, reads that mapped uniquely to the forward strand were extracted using Samtools \cite{Li:2009kaa}:
+Following alignment allowing 2 mismatches and 1 gap, reads that mapped uniquely to the forward strand were extracted using Samtools \cite{Li:2009kaa}:
 
 \begin{small}\begin{lstlisting}
 samtools view -F 20 -q 1 -S aligned_gRNA.sam  > gRNA_uniquely_mapped.sam
@@ -376,7 +376,7 @@ for(mu in 1:G){
 
 ### Fit model for each gRNA
 
-# Preallocate a list of model resuls
+# Preallocate a list of model results
 res <- vector('list',G)
 
 # Loop through gRNAs, for each one fit a model and get the corrected read count
@@ -410,7 +410,7 @@ for i in *length14; do python ./reads_per_gRNA.py "$i"; done
 
 \subsection{Wrapping gRNA counts of all samples into a table}
 
-While the Bayesian model ouputs a csv file containing the counts per gRNA for each sample directly, the output of the script \verb|collapse-barcodes.py| (used to count gRNAs without error correction or to perform a naive PCR error correction) outputs one table per sample. This data can be merged into a single table listing for each gRNA the count in each sample using the script \verb|make_table_from_counts.py|. This script also adds information about which gene is targeted by each gRNA. The script takes a variable number of inputfiles to wrap into a table:
+While the Bayesian model outputs a csv file containing the counts per gRNA for each sample directly, the output of the script \verb|collapse-barcodes.py| (used to count gRNAs without error correction or to perform a naive PCR error correction) outputs one table per sample. This data can be merged into a single table listing for each gRNA the count in each sample using the script \verb|make_table_from_counts.py|. This script also adds information about which gene is targeted by each gRNA. The script takes a variable number of inputfiles to wrap into a table:
 
 \begin{small}\begin{lstlisting}
 python makeTable_from_counts.py INPUTFILE1 INPUTFILE2 ... INPUTFILEn
@@ -420,7 +420,7 @@ This was used to generate the tables \verb|Dataframe_allsamples_readcounts.txt| 
 
 \subsection{Generating the plots of counts versus number of reads for each gRNA}
 
-The number of reads per gRNA were plotted against the counts per gRNA, derived either without error correction, with naive PCR error correction or Bayesian PCR error correction (as described above), using the script \verb|plot_counts_vs_number_of_reads.py|. Samplesheets can be found in the folder ``samplefiles"
+The number of reads per gRNA were plotted against the counts per gRNA, derived either without error correction, with naive PCR error correction or Bayesian PCR error correction (as described above), using the script \verb|plot_counts_vs_number_of_reads.py|. Samplesheets can be found in the folder ``samplefiles".
 
 \begin{small}\begin{lstlisting}
 python plot_counts_vs_number_of_reads.py [Dataframe-Counts] [Dataframe-NumberOfReads] [Samplesheet]
@@ -441,7 +441,7 @@ This script was used to generate the plots in Figure 4.9 and Figure 4.10 of the 
 
 \section{Diagnostic plot: Counts versus number of sorted cells}
 
-This script accepts three user-supplied arguments, a dataframe of gRNA counts (c), a dataframe of numbers of sorted cells per sample (n), and a samplesheet (s) and returns a scatterplot of sorted cells versus counts with one data point per sample in the samplesheet. It is further hardcoded to color the dots according to whether 2 or 3 inital cycles of barcoding PCR were used to attach unique molecular identifiers to gRNA sequences before amplification and sequencing. The samplesheets can be found in the folder \verb|samplefiles| and the file recording the number of sorted cells is in the folder \verb|additional-files|. The script was invoked as follows:
+This script accepts three user-supplied arguments, a dataframe of gRNA counts (c), a dataframe of numbers of sorted cells per sample (n), and a samplesheet (s) and returns a scatterplot of sorted cells versus counts with one data point per sample in the samplesheet. It is further hardcoded to color the dots according to whether two or three initial cycles of barcoding PCR were used to attach unique molecular identifiers to gRNA sequences before amplification and sequencing. The samplesheets can be found in the folder \verb|samplefiles| and the file recording the number of sorted cells is in the folder \verb|additional-files|. The script was invoked as follows:
 
 \begin{small}\begin{lstlisting}
 python cellnumber_vs_counts.py -c bayesian_corrected.csv -n Number_of_sorted_cells.csv  -s samplefile_all.txt 
@@ -547,13 +547,13 @@ Set7_L2FC.to_csv('Set7s_DESeq_L2FC_NApvalue2zero.csv', sep=',')
 
 For each gRNA where DESeq2 had detected outliers (and set the p-value to NA in the output) Log2Fold Change values were set to 0 before the next step, i.e. ranking of gRNAs.
 
-The script \verb|Desirability.R| was used to rank gRNAs based on large postive Log2FC and small Log2FC standard error. A weighted average is calculated and Log2FC is given four times the weight of its standard error during this ranking:
+The script \verb|Desirability.R| was used to rank gRNAs based on large positive Log2FC and small Log2FC standard error. A weighted average is calculated and Log2FC is given four times the weight of its standard error during this ranking:
 
 \begin{small}\begin{lstlisting}
 ./Desirability.R -f p300s_DESeq_L2FC_NApvalue2zero.csv -w 4 -e 1
 \end{lstlisting}\end{small}
 
-The script outputs a ranked list of randidate gRNAs, ranked based on the calculated overall desirability  (here \verb|p300_candidates_4xL2FC_1xLfcSE.csv| as well as plots showing Desirabilities across all gRNAs as well as histograms for Log2Fold Changes and associated standard errors. These are shown in Figure 4.14 on page 139 of the PhD thesis.
+The script outputs a ranked list of candidate gRNAs, ranked based on the calculated overall desirability  (here \verb|p300_candidates_4xL2FC_1xLfcSE.csv| as well as plots showing Desirabilities across all gRNAs as well as histograms for Log2Fold Changes and associated standard errors. These are shown in Figure 4.14 on page 139 of the PhD thesis.
 
 The top 10 candidates were extracted from the list of gRNAs ranked by their Desirability score for use in the validation experiments. The sequences were extracted for cloning into the gRNA vector as follows:
 

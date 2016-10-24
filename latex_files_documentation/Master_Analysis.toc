@@ -13,7 +13,7 @@
 \contentsline {section}{\numberline {3.1}Defining regions of interest}{20}{section.3.1}
 \contentsline {section}{\numberline {3.2}Identifying all gRNAs that fall into regions of interest}{22}{section.3.2}
 \contentsline {section}{\numberline {3.3}Subsetting only gRNAs that map uniquely to the human genome}{22}{section.3.3}
-\contentsline {section}{\numberline {3.4}Addition of plasmid sequencs for use in Gibson cloning}{24}{section.3.4}
+\contentsline {section}{\numberline {3.4}Addition of plasmid sequences for use in Gibson cloning}{24}{section.3.4}
 \contentsline {chapter}{\numberline {4}Data analysis: Screens with the EMT5000 library and stable cell lines expressing the dCas9-SET7 or dCas9-p300 chromatin modifier}{27}{chapter.4}
 \contentsline {section}{\numberline {4.1}Read trimming and Quality Filtering}{28}{section.4.1}
 \contentsline {section}{\numberline {4.2}Alignment to the EMT5000 library}{30}{section.4.2}

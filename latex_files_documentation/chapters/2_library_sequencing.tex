@@ -36,7 +36,7 @@ cat 255-N19_R1_F50+19R_trimmed.fastq.gz 255_R1_50FRC+19RRC_trimmed.fastq.gz > 25
 
 zcat 255_R1_4waytrimmed.fastq.gz | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > 255_R1_4waytrimmed_sorted.fastq;
 
-### Extracted gRNA sequences sequenced in reverese direction need to be reverse-complemented
+### Extracted gRNA sequences sequenced in reverse direction need to be reverse-complemented
 
 zcat 255_R1_50FRC+19RRC_trimmed.fastq.gz | fastx_reverse_complement -Q33 -z > 255_R1_50FRC+19RRC_trimmed_onedirection.fastq.gz;
 
@@ -117,5 +117,5 @@ Uniquely mapped reads were counted using Samtools \cite{Li:2009kaa}.
 samtools view -S -q1 255_R1_4waytrimmed.sam | wc -l
 \end{lstlisting}\end{small}
  
-The remainder of the analysis (parts of which are shown in Fig. 3.18 on page 111 of the thesis) was conducted by my collaborator Karolina Worf at the Helmholtz Institute in Munich. The documentation for this analysis is available at hgmubox (\url{https://hmgubox.helmholtz-muenchen.de:8001/d/6c6e75236e/}; password: Coralina). 
+The remainder of the analysis (parts of which are shown in Fig. 3.18 on page 111 of the thesis) was conducted by my collaborator Karolina Worf at the Helmholtz Institute in Munich. The documentation for this analysis is available at hmgubox (\url{https://hmgubox.helmholtz-muenchen.de:8001/d/6c6e75236e/}; password: Coralina). 
 

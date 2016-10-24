@@ -3,7 +3,7 @@
 
 The genomic target sites of gRNAs designed for use with the \textit{S.pyogenes} CRISPR/Cas system are of the general form GN$_{20}$GG. The presence of the G at the start of the motif is required for initiation of transcription from the U6 promoter, present on many gRNA expression vectors. This is followed by 19 random bases (N) that determine the gRNA target site - these bases comprise the gRNA protospacer. The protospacer sequence is followed by the protospacer-adjacent motif (PAM), which is not part of the gRNA sequence but is present in the genomic target sequence just 3' of the gRNA target site. For the \textit{S.pyogenes} CRISPR/Cas system, the PAM has to be comprised of the bases NGG. 
 
-A gRNA library is a pooled collection of gRNAs. A random library has a complexity of $4^{19}$, which corresponds to $10^{12}$ different sequences. The aim here is to reduce this complexity and maximise binding to the genome. To this end, I first identified the number of occurences of the sequences GN20GG in the human genome. The Bioconductor (Bioconductor version 2.14) package BSgenome \citep{BSgenome} was used to identify all sequences matching this pattern in the repeat-masked human genome in R (version 3.1.1). An R script named \verb|find_all_gRNAs.R| contains the code and outputs a file containing chromosome coordinates and strand information for all hits, with the last column containing the pattern identifier. The script looks for the GN$_{20}$GG by default (and outputs a file named \verb|GN20GG_masked_allregions.txt|), unless another pattern is supplied by the user as follows:
+A gRNA library is a pooled collection of gRNAs. A random library has a complexity of $4^{19}$, which corresponds to $10^{12}$ different sequences. The aim here is to reduce this complexity and maximise binding to the genome. To this end, I first identified the number of occurrences of the sequences GN20GG in the human genome. The Bioconductor (Bioconductor version 2.14) package BSgenome \citep{BSgenome} was used to identify all sequences matching this pattern in the repeat-masked human genome in R (version 3.1.1). An R script named \verb|find_all_gRNAs.R| contains the code and outputs a file containing chromosome coordinates and strand information for all hits, with the last column containing the pattern identifier. The script looks for the GN$_{20}$GG by default (and outputs a file named \verb|GN20GG_masked_allregions.txt|), unless another pattern is supplied by the user as follows:
 
 \begin{small}\begin{lstlisting}
 ./find_all_gRNAs.R -p [pattern, e.g. "GTACN"], -n [pattern-name, e.g. "my-pattern"], -o [outputfilename, e.g. "All_GTACN_hg19_RM.txt"]
@@ -77,7 +77,7 @@ GN20GG_masked_autoXY_promoters_merged_PlusMinus_UNIQUE.fa
 
 \end{lstlisting}\end{small}
 
-This yields a file containig 4,113,530 sequences.
+This yields a file containing 4,113,530 sequences.
 
 \section{Identifying a consensus sequence for gRNAs that fall into promoters}
 
@@ -148,7 +148,7 @@ For each of the top 15 clusters consensus sequences were computed using the Bioc
 shift=0L, width=NULL) 
 \end{lstlisting}\end{small}
 
-The threshold option allows the user to define the percentage threshhold at which a given nucleotide will be incorporated into the consensus sequence at a given position. The threshold was varied between 0.14 and 0.25 so as to yield consensus sequences representing roughly $10^4$, $10^5$ and $10^6$ different sequences respectively. The complexity, or number of sequences represented by a cluster, was computed using a C script downloaded from \cite{Lindenbaum:Online} and named \verb|AllSequencesFromConsensus.c|.
+The threshold option allows the user to define the percentage threshold at which a given nucleotide will be incorporated into the consensus sequence at a given position. The threshold was varied between 0.14 and 0.25 so as to yield consensus sequences representing roughly $10^4$, $10^5$ and $10^6$ different sequences respectively. The complexity, or number of sequences represented by a cluster, was computed using a C script downloaded from \cite{Lindenbaum:Online} and named \verb|AllSequencesFromConsensus.c|.
 
 \begin{small}\begin{lstlisting}
 #compile with
